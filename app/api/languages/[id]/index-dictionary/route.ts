@@ -34,13 +34,26 @@ export async function POST(
 
   const supabase = getSupabaseServer();
 
-  const { data: entries, error } = await supabase
-    .from("dictionary_entries")
-    .select("term, translation, definition, example")
-    .eq("language_id", id)
-    .range(0, 9999);
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  // Page through: the server caps any single response at 1000 rows.
+  type Entry = {
+    term: string;
+    translation: string | null;
+    definition: string | null;
+    example: string | null;
+  };
+  const entries: Entry[] = [];
+  for (let page = 0; page < 20; page++) {
+    const { data, error } = await supabase
+      .from("dictionary_entries")
+      .select("term, translation, definition, example")
+      .eq("language_id", id)
+      .order("created_at", { ascending: true })
+      .range(page * 1000, page * 1000 + 999);
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    entries.push(...(data ?? []));
+    if (!data || data.length < 1000) break;
+  }
   if (!entries?.length)
     return NextResponse.json({ error: "no dictionary entries" }, { status: 400 });
 
