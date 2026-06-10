@@ -13,21 +13,29 @@ export async function GET() {
     .order("name");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Per-language counts (dataset size + dictionary size).
+  // Per-language counts (dataset size + dictionary size). Head-only count
+  // queries: fetching rows would silently cap at PostgREST's 1000-row limit.
   const ids = (languages ?? []).map((l) => l.id);
   const counts: Record<string, { responses: number; entries: number }> = {};
-  for (const id of ids) counts[id] = { responses: 0, entries: 0 };
 
-  if (ids.length) {
-    const [resp, entries] = await Promise.all([
-      supabase.from("quiz_responses").select("language_id"),
-      supabase.from("dictionary_entries").select("language_id"),
-    ]);
-    for (const r of resp.data ?? [])
-      if (counts[r.language_id]) counts[r.language_id].responses++;
-    for (const e of entries.data ?? [])
-      if (counts[e.language_id]) counts[e.language_id].entries++;
-  }
+  await Promise.all(
+    ids.map(async (id) => {
+      const [resp, entries] = await Promise.all([
+        supabase
+          .from("quiz_responses")
+          .select("id", { count: "exact", head: true })
+          .eq("language_id", id),
+        supabase
+          .from("dictionary_entries")
+          .select("id", { count: "exact", head: true })
+          .eq("language_id", id),
+      ]);
+      counts[id] = {
+        responses: resp.count ?? 0,
+        entries: entries.count ?? 0,
+      };
+    }),
+  );
 
   const result = (languages ?? []).map((l) => ({
     ...l,
