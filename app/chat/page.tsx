@@ -40,7 +40,9 @@ export default function ChatPage() {
     );
   }
 
-  const chatReady = active.response_count >= DATASET_THRESHOLD;
+  // Quiz answers and imported dictionary entries both count as dataset.
+  const chatReady =
+    active.response_count + active.entry_count >= DATASET_THRESHOLD;
   const mode: "quiz" | "chat" = override ?? (chatReady ? "chat" : "quiz");
 
   return (

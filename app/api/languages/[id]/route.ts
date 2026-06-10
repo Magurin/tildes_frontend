@@ -26,7 +26,9 @@ export async function GET(
       .from("dictionary_entries")
       .select("*")
       .eq("language_id", id)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      // Explicit range: PostgREST returns at most 1000 rows by default.
+      .range(0, 4999),
     supabase
       .from("documents")
       .select("*")
@@ -39,6 +41,7 @@ export async function GET(
   ]);
 
   const responseCount = responses.data?.length ?? 0;
+  const entryCount = entries.data?.length ?? 0;
 
   return NextResponse.json({
     language,
@@ -46,6 +49,7 @@ export async function GET(
     documents: documents.data ?? [],
     responseCount,
     threshold: DATASET_THRESHOLD,
-    chatReady: responseCount >= DATASET_THRESHOLD,
+    // Quiz answers and dictionary entries both count as dataset.
+    chatReady: responseCount + entryCount >= DATASET_THRESHOLD,
   });
 }

@@ -38,7 +38,8 @@ export default function LanguagesPage() {
 
       <ul className="flex flex-col gap-3">
         {languages.map((l) => {
-          const ready = l.response_count >= DATASET_THRESHOLD;
+          const ready =
+            l.response_count + l.entry_count >= DATASET_THRESHOLD;
           const isActive = l.id === activeId;
           return (
             <li key={l.id}>
