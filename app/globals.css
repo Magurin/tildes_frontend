@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  /* Warm heritage / archival palette */
+  --background: #faf6ee;
+  --surface: #ffffff;
+  --surface-2: #f4ecdd;
+  --foreground: #292524; /* stone-800 */
+  --muted: #78716c; /* stone-500 */
+  --primary: #b45309; /* amber-700 */
+  --primary-hover: #92400e;
+  --primary-foreground: #ffffff;
+  --accent: #0f766e; /* teal-700 */
+  --accent-foreground: #ffffff;
+  --border: #e7ddc9;
+  --ring: #b45309;
+  --destructive: #b91c1c;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-display);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Soft "clay" card with a warm, layered shadow */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 1px 2px rgba(120, 90, 40, 0.06),
+    0 8px 24px -12px rgba(120, 90, 40, 0.18);
+}
+
+/* Press feedback (respects reduced motion below) */
+.pressable {
+  transition:
+    transform 0.15s ease-out,
+    background-color 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+}
+.pressable:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .pressable:active {
+    transform: none;
+  }
+}
