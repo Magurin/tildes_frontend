@@ -9,8 +9,9 @@ export const maxDuration = 60;
 
 /** Mime marker for the synthetic dictionary-index document. */
 const INDEX_MIME = "application/x-dictionary-index";
-/** Dictionary lines per RAG chunk. */
-const LINES_PER_CHUNK = 25;
+/** Dictionary lines per RAG chunk. Small chunks keep the embedding focused
+ * on a few words, so single-word lookups surface the right entry. */
+const LINES_PER_CHUNK = 8;
 
 /**
  * POST — (re)index a language's dictionary into the RAG store.

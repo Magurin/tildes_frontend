@@ -16,7 +16,7 @@ export const CHUNK_OVERLAP = 150;
 export const EMBEDDING_DIM = 768;
 
 /** Number of RAG chunks pulled into the chat prompt. */
-export const RAG_MATCH_COUNT = 6;
+export const RAG_MATCH_COUNT = 10;
 
 /** Storage bucket names. */
 export const BUCKETS = {
