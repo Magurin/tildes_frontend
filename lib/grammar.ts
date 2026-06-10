@@ -25,6 +25,28 @@ export const GRAMMAR_NOTES: Record<string, string> = {
     "- Stock phrases: Эзен! (здравствуй), Јакшы ба? (как дела?), Быйан (спасибо),",
     "  Јакшы (хорошо), Эйе (да), Јок (нет).",
   ].join("\n"),
+  // Khakas (хакасский)
+  kjh: [
+    "Khakas (хакас тілі) grammar primer:",
+    "- Turkic, agglutinative, strict SOV word order (verb last).",
+    "- Cyrillic script with extra letters: ғ, і, ң, ӧ, ӱ, ҷ.",
+    "- Vowel harmony: suffixes alternate front/back",
+    "  (plural -лар/-лер/-тар/-тер/-нар/-нер).",
+    "- No grammatical gender, no articles.",
+    "- Cases: NOM —, GEN -ның/-нің, DAT -ға/-ге/-ха/-хе, ACC -ны/-ні,",
+    "  LOC -да/-де/-та/-те, ABL -даң/-дең/-таң/-тең.",
+    "- Possession via suffixes: -ым/-ім (my), -ың/-ің (your), -ы/-і (his/her).",
+    "- Present tense -ча/-че (+person: -чам/-чем 1sg): чуртапчам «я живу»;",
+    "  past -ған/-ген or -ды/-ді; imperative = bare stem.",
+    "- Verb negation with -ба-/-бе-/-па-/-пе- infix; nominal negation with нимес.",
+    "- Question particle ба/бе/па/пе at the end.",
+    "- «есть/имеется» = пар, «нет/не имеется» = чох.",
+    "- Pronouns: мин, син, ол, піс, сірер, олар.",
+    "- Stock phrases: Изен! / Изеннер! (здравствуй / здравствуйте),",
+    "  Хайди чуртапчазың? (как живёшь?), Чахсы (хорошо), Анымҷох (до свидания),",
+    "  Алғыстапчам (благодарю).",
+    "- IMPORTANT: greet with «Изен!» or «Изеннер!», never invent greetings.",
+  ].join("\n"),
 };
 
 /** Primer for a language, or empty string when none is curated yet. */
