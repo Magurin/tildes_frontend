@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { GEMINI_MODEL, GEMINI_EMBED_MODEL, EMBEDDING_DIM } from "./config";
 
 let client: GoogleGenAI | null = null;
+let embedClient: GoogleGenAI | null = null;
 
 function getClient() {
   if (client) return client;
@@ -9,6 +10,16 @@ function getClient() {
   if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
   client = new GoogleGenAI({ apiKey });
   return client;
+}
+
+/** Embeddings burn a separate (much smaller) free-tier quota, so they can
+ * run on their own key. Falls back to the main key when not configured. */
+function getEmbedClient() {
+  if (embedClient) return embedClient;
+  const apiKey = process.env.GEMINI_EMBED_API_KEY;
+  if (!apiKey) return getClient();
+  embedClient = new GoogleGenAI({ apiKey });
+  return embedClient;
 }
 
 /** Whether Gemini is configured (used to gracefully degrade in the UI). */
@@ -36,7 +47,7 @@ export async function generateChat(
 /** Embed a batch of texts. Returns one vector per input. */
 export async function embedTexts(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return [];
-  const ai = getClient();
+  const ai = getEmbedClient();
   // The embed API accepts at most 100 contents per request.
   const out: number[][] = [];
   for (let i = 0; i < texts.length; i += 100) {
