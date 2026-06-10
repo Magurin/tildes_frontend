@@ -37,15 +37,37 @@ export async function POST(request: Request) {
 
   // Dictionary lookup keyed to the user's message: search terms and
   // translations for the message's words instead of taking a random sample.
+  // Meta-words about the conversation itself would only drag in noise.
+  const STOPWORDS = new Set([
+    "как", "что", "это", "скажи", "расскажи", "переведи", "составь",
+    "напиши", "слово", "слова", "предложение", "фраза", "фразу", "язык",
+    "языке", "будет", "такое", "почему", "объясни", "пример", "примеры",
+    "можно", "пожалуйста", "the", "what", "how", "word",
+  ]);
   const queryWords = [
     ...new Set(
       message
         .toLowerCase()
         .replace(/[^\p{L}\p{N}\s-]/gu, " ")
         .split(/\s+/)
-        .filter((w) => w.length >= 3),
+        .filter((w) => w.length >= 3 && !STOPWORDS.has(w)),
     ),
-  ].slice(0, 8);
+  ].slice(0, 6);
+
+  // Tier 1: whole-word matches in the gloss (regex word boundaries) or the
+  // exact term — precise hits like «вода» → «суғ». Substring search alone
+  // drowns them in noise («гора» matches «подгорать»).
+  const exactLookups = Promise.all(
+    queryWords.map((w) =>
+      supabase
+        .from("dictionary_entries")
+        .select("term, translation, definition, example")
+        .eq("language_id", languageId)
+        .or(`term.eq.${w},translation.imatch.\\m${w}\\M`)
+        .limit(6),
+    ),
+  ).then((rs) => rs.flatMap((r) => r.data ?? []));
+
   const orFilter = queryWords
     .map((w) => `term.ilike.%${w}%,translation.ilike.%${w}%`)
     .join(",");
@@ -54,12 +76,14 @@ export async function POST(request: Request) {
   const [
     { data: language },
     ragChunks,
+    exactDict,
     { data: relevantDict },
     { data: sampleDict },
     { data: history },
   ] = await Promise.all([
     supabase.from("languages").select("*").eq("id", languageId).single(),
     retrieveContext(languageId, message),
+    exactLookups,
     orFilter
       ? supabase
           .from("dictionary_entries")
@@ -81,9 +105,9 @@ export async function POST(request: Request) {
       .limit(20),
   ]);
 
-  // Relevant hits first, then samples as filler; dedupe by term.
+  // Exact hits first, then substring matches, then samples; dedupe by term.
   const seenTerms = new Set<string>();
-  const dictLines = [...(relevantDict ?? []), ...(sampleDict ?? [])]
+  const dictLines = [...exactDict, ...(relevantDict ?? []), ...(sampleDict ?? [])]
     .filter((d) => {
       const key = d.term.toLowerCase();
       if (seenTerms.has(key)) return false;
