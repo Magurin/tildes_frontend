@@ -37,12 +37,17 @@ export async function generateChat(
 export async function embedTexts(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return [];
   const ai = getClient();
-  const res = await ai.models.embedContent({
-    model: GEMINI_EMBED_MODEL,
-    contents: texts,
-    config: { outputDimensionality: EMBEDDING_DIM },
-  });
-  return (res.embeddings ?? []).map((e) => e.values ?? []);
+  // The embed API accepts at most 100 contents per request.
+  const out: number[][] = [];
+  for (let i = 0; i < texts.length; i += 100) {
+    const res = await ai.models.embedContent({
+      model: GEMINI_EMBED_MODEL,
+      contents: texts.slice(i, i + 100),
+      config: { outputDimensionality: EMBEDDING_DIM },
+    });
+    out.push(...(res.embeddings ?? []).map((e) => e.values ?? []));
+  }
+  return out;
 }
 
 /** Embed a single text, returning its vector. */
