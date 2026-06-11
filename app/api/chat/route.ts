@@ -97,11 +97,16 @@ export async function POST(request: Request) {
       .select("term, translation, definition, example")
       .eq("language_id", languageId)
       .limit(20),
+    // Newest 20 messages: order descending so the limit keeps the most
+    // recent turns (including the message just persisted above), then
+    // reverse to chronological order before sending to the model. Ordering
+    // ascending here would freeze the window on the oldest 20 turns and drop
+    // the current question, leaving the model nothing to answer.
     supabase
       .from("chat_messages")
       .select("role, content")
       .eq("language_id", languageId)
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false })
       .limit(20),
   ]);
 
@@ -147,10 +152,14 @@ export async function POST(request: Request) {
     .filter(Boolean)
     .join("\n");
 
-  const turns = (history ?? []).map((m) => ({
-    role: m.role === "user" ? ("user" as const) : ("model" as const),
-    text: m.content,
-  }));
+  // History came back newest-first; flip to chronological for the model.
+  const turns = (history ?? [])
+    .slice()
+    .reverse()
+    .map((m) => ({
+      role: m.role === "user" ? ("user" as const) : ("model" as const),
+      text: m.content,
+    }));
 
   let reply: string;
   try {
@@ -159,6 +168,20 @@ export async function POST(request: Request) {
     console.error("Gemini error:", e);
     return NextResponse.json(
       { error: "Generation failed" },
+      { status: 502 },
+    );
+  }
+
+  // Don't persist or return an empty turn — surface it as an error so the UI
+  // can retry rather than rendering a blank bubble.
+  if (!reply.trim()) {
+    console.error("Gemini returned an empty reply", {
+      languageId,
+      promptChars: system.length,
+      turns: turns.length,
+    });
+    return NextResponse.json(
+      { error: "Empty reply from model" },
       { status: 502 },
     );
   }
