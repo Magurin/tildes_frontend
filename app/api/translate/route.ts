@@ -7,6 +7,11 @@ import { grammarNotes } from "@/lib/grammar";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+/** Inference backend with the project's own NLLB+LoRA translator. */
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
+/** Languages whose translations go through the own model first. */
+const NMT_LANGS = new Set(["alt"]);
+
 /**
  * POST {language_id, text, direction} — translate between Russian and the
  * target language, grounded in the dictionary, grammar notes and corpus.
@@ -57,6 +62,34 @@ export async function POST(request: Request) {
           .limit(40)
       : Promise.resolve({ data: [] as { term: string; translation: string | null }[] }),
   ]);
+
+  // Own fine-tuned NLLB first for supported languages; Gemini+RAG is the
+  // fallback when the backend is cold, down, or not configured.
+  if (BACKEND_URL && NMT_LANGS.has(language?.iso_code ?? "")) {
+    try {
+      const res = await fetch(`${BACKEND_URL}/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          direction,
+          iso_code: language?.iso_code,
+        }),
+        signal: AbortSignal.timeout(45_000),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.translation?.trim())
+          return NextResponse.json({
+            translation: json.translation.trim(),
+            model: json.model,
+            usedContext: 0,
+          });
+      }
+    } catch (e) {
+      console.error("Own NMT failed, falling back to Gemini:", e);
+    }
+  }
 
   const name = language?.name ?? "целевой";
   const dictLines = (dict ?? [])
