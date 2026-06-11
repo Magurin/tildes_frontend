@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { SwapIcon, CopyIcon, XIcon, CheckIcon } from "./icons";
+import { useRef, useState } from "react";
+import { SwapIcon, CopyIcon, XIcon, CheckIcon, SpeakerIcon } from "./icons";
+
+/** Inference backend (Railway): NLLB translate + MMS-TTS voice. */
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
+/** Languages with an MMS-TTS voice on the backend. */
+const TTS_LANGS = new Set(["alt"]);
 
 /**
  * Two-panel translator (Russian ↔ target language) backed by /api/translate.
@@ -11,9 +16,11 @@ import { SwapIcon, CopyIcon, XIcon, CheckIcon } from "./icons";
 export default function Translator({
   languageId,
   targetName,
+  isoCode,
 }: {
   languageId: string;
   targetName: string;
+  isoCode?: string | null;
 }) {
   // direction "ru2t": source Russian → target language.
   const [direction, setDirection] = useState<"ru2t" | "t2ru">("ru2t");
@@ -22,6 +29,41 @@ export default function Translator({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Voice is available when the backend is configured, the target language
+  // has an MMS voice, and the current result is in that language.
+  const canSpeak =
+    Boolean(BACKEND_URL) &&
+    TTS_LANGS.has(isoCode ?? "") &&
+    direction === "ru2t";
+
+  async function speak() {
+    if (!result || speaking) return;
+    setSpeaking(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: result }),
+      });
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      audioRef.current?.pause();
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+        setSpeaking(false);
+      };
+      await audio.play();
+    } catch {
+      setError("Озвучка недоступна");
+      setSpeaking(false);
+    }
+  }
 
   const sourceLabel = direction === "ru2t" ? "Русский" : targetName;
   const targetLabel = direction === "ru2t" ? targetName : "Русский";
@@ -133,18 +175,31 @@ export default function Translator({
             )}
           </p>
           {result && !busy && (
-            <button
-              onClick={copy}
-              aria-label="Скопировать перевод"
-              className="pressable absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted hover:text-foreground"
-            >
-              {copied ? (
-                <CheckIcon width={16} height={16} aria-hidden />
-              ) : (
-                <CopyIcon width={16} height={16} aria-hidden />
+            <div className="absolute bottom-2 right-2 flex items-center gap-1">
+              {canSpeak && (
+                <button
+                  onClick={speak}
+                  disabled={speaking}
+                  aria-label="Озвучить перевод"
+                  className="pressable inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted hover:text-primary disabled:opacity-50"
+                >
+                  <SpeakerIcon width={16} height={16} aria-hidden />
+                  {speaking ? "Звучит…" : "Озвучить"}
+                </button>
               )}
-              {copied ? "Скопировано" : "Копировать"}
-            </button>
+              <button
+                onClick={copy}
+                aria-label="Скопировать перевод"
+                className="pressable inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-muted hover:text-foreground"
+              >
+                {copied ? (
+                  <CheckIcon width={16} height={16} aria-hidden />
+                ) : (
+                  <CopyIcon width={16} height={16} aria-hidden />
+                )}
+                {copied ? "Скопировано" : "Копировать"}
+              </button>
+            </div>
           )}
         </div>
       </div>

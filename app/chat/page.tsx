@@ -11,7 +11,6 @@ import { DATASET_THRESHOLD } from "@/lib/config";
 export default function BotPage() {
   const { active, activeId, loading } = useLanguages();
   const [mode, setMode] = useState<"translate" | "chat">("translate");
-  const [adding, setAdding] = useState(false);
 
   if (loading) return <p className="pt-6 text-muted">Загрузка…</p>;
 
@@ -43,23 +42,8 @@ export default function BotPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Active language switcher + add new */}
-      <div className="flex items-stretch gap-2">
-        <div className="flex-1">
-          <LanguageSwitcher />
-        </div>
-        <button
-          onClick={() => setAdding((v) => !v)}
-          className="pressable shrink-0 rounded-2xl bg-surface-2 px-4 text-sm font-medium text-foreground"
-        >
-          {adding ? "Отмена" : "+ Язык"}
-        </button>
-      </div>
-      {adding && (
-        <div className="card p-4">
-          <LanguageNameForm onDone={() => setAdding(false)} />
-        </div>
-      )}
+      {/* Active language switcher */}
+      <LanguageSwitcher />
 
       {/* Mode toggle: translator / free chat */}
       <div className="flex rounded-xl bg-surface-2 p-1">
@@ -84,7 +68,11 @@ export default function BotPage() {
       </div>
 
       {mode === "translate" ? (
-        <Translator languageId={activeId} targetName={active.name} />
+        <Translator
+          languageId={activeId}
+          targetName={active.name}
+          isoCode={active.iso_code}
+        />
       ) : (
         <ChatMode languageId={activeId} ready={chatReady} />
       )}
