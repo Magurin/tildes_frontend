@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SwapIcon, CopyIcon, XIcon, CheckIcon, SpeakerIcon } from "./icons";
 
 /** Inference backend (Railway): NLLB translate + MMS-TTS voice. */
@@ -76,27 +76,47 @@ export default function Translator({
     setError(null);
   }
 
-  async function translate() {
+  // Auto-translate: fire after the user pauses typing; newer input aborts
+  // the in-flight request so stale results never overwrite fresh ones.
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
     const value = text.trim();
-    if (!value || busy) return;
-    setBusy(true);
-    setError(null);
-    setResult("");
-    try {
-      const res = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language_id: languageId, text: value, direction }),
-      });
-      const json = await res.json();
-      if (res.ok) setResult(json.translation);
-      else setError(json.error ?? "Ошибка перевода");
-    } catch {
-      setError("Сетевая ошибка");
-    } finally {
+    abortRef.current?.abort();
+    if (!value) {
+      setResult("");
+      setError(null);
       setBusy(false);
+      return;
     }
-  }
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ language_id: languageId, text: value, direction }),
+          signal: ctrl.signal,
+        });
+        const json = await res.json();
+        if (ctrl.signal.aborted) return;
+        if (res.ok) setResult(json.translation);
+        else setError(json.error ?? "Ошибка перевода");
+      } catch (e) {
+        if (!(e instanceof DOMException && e.name === "AbortError"))
+          setError("Сетевая ошибка");
+      } finally {
+        if (!ctrl.signal.aborted) setBusy(false);
+      }
+    }, 700);
+    return () => {
+      clearTimeout(timer);
+      ctrl.abort();
+    };
+  }, [text, direction, languageId]);
 
   async function copy() {
     if (!result) return;
@@ -136,12 +156,6 @@ export default function Translator({
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault();
-                translate();
-              }
-            }}
             rows={6}
             maxLength={2000}
             placeholder={
@@ -212,13 +226,9 @@ export default function Translator({
 
       <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
         <span className="text-xs text-muted">{text.length} / 2000</span>
-        <button
-          onClick={translate}
-          disabled={busy || !text.trim()}
-          className="pressable rounded-xl bg-primary px-5 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          Перевести
-        </button>
+        <span className="text-xs text-muted">
+          {busy ? "Перевожу…" : "Перевод появляется по мере ввода"}
+        </span>
       </div>
     </div>
   );
