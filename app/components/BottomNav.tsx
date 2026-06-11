@@ -2,13 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HomeIcon, ChatIcon, UploadIcon, GlobeIcon, BookIcon } from "./icons";
+import {
+  HomeIcon,
+  ChatIcon,
+  GlobeIcon,
+  BookIcon,
+  MicIcon,
+} from "./icons";
 
 const tabs = [
   { href: "/", label: "Главная", Icon: HomeIcon, exact: true },
-  { href: "/chat", label: "Бот", Icon: ChatIcon },
+  { href: "/chat", label: "Перевод", Icon: ChatIcon },
+  { href: "/capture", label: "Запись", Icon: MicIcon },
   { href: "/learn", label: "Учить", Icon: BookIcon },
-  { href: "/upload", label: "Загрузка", Icon: UploadIcon },
   { href: "/languages", label: "Языки", Icon: GlobeIcon },
 ];
 

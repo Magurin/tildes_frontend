@@ -109,6 +109,29 @@ export const XIcon = (p: P) => (
   </svg>
 );
 
+export const SwapIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 8h15" />
+    <path d="m15 4 4 4-4 4" />
+    <path d="M20 16H5" />
+    <path d="m9 12-4 4 4 4" />
+  </svg>
+);
+
+export const CopyIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <rect x="9" y="9" width="11" height="11" rx="2" />
+    <path d="M5 15V5a2 2 0 0 1 2-2h8" />
+  </svg>
+);
+
+export const SpeakerIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+    <path d="M16 9a4 4 0 0 1 0 6" />
+  </svg>
+);
+
 export const RepeatIcon = (p: P) => (
   <svg {...base} {...p}>
     <path d="M17 2.5 21 6.5l-4 4" />
