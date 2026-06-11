@@ -49,7 +49,7 @@ export default function RootLayout({
     >
       <body className="min-h-dvh bg-background">
         <ActiveLanguageProvider>
-          <main className="mx-auto max-w-lg px-4 pb-24 pt-4">{children}</main>
+          <main className="mx-auto max-w-3xl px-4 pb-24 pt-4">{children}</main>
           <BottomNav />
           <PWARegister />
         </ActiveLanguageProvider>

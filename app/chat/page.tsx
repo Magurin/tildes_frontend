@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLanguages } from "../components/ActiveLanguageProvider";
-import LanguagePicker from "../components/LanguagePicker";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import LanguageNameForm from "../components/LanguageNameForm";
 import Translator from "../components/Translator";
 import ChatMode from "../components/ChatMode";
@@ -43,28 +43,14 @@ export default function BotPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="pt-2">
-        <h1
-          className="text-2xl text-foreground"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Переводчик
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          {mode === "translate"
-            ? "Перевод между русским и выбранным языком."
-            : "Свободный диалог на основе собранных данных."}
-        </p>
-      </header>
-
-      {/* Active language + add new */}
-      <div className="flex items-end gap-2">
+      {/* Active language switcher + add new */}
+      <div className="flex items-stretch gap-2">
         <div className="flex-1">
-          <LanguagePicker />
+          <LanguageSwitcher />
         </div>
         <button
           onClick={() => setAdding((v) => !v)}
-          className="pressable mb-px h-12.5 shrink-0 rounded-xl bg-surface-2 px-4 text-sm font-medium text-foreground"
+          className="pressable shrink-0 rounded-2xl bg-surface-2 px-4 text-sm font-medium text-foreground"
         >
           {adding ? "Отмена" : "+ Язык"}
         </button>
@@ -79,7 +65,7 @@ export default function BotPage() {
       <div className="flex rounded-xl bg-surface-2 p-1">
         <button
           onClick={() => setMode("translate")}
-          className={`pressable flex-1 rounded-lg py-2 text-sm font-medium ${
+          className={`pressable flex-1 rounded-lg py-2.5 text-sm font-medium ${
             mode === "translate"
               ? "bg-surface text-foreground shadow-sm"
               : "text-muted"
@@ -89,7 +75,7 @@ export default function BotPage() {
         </button>
         <button
           onClick={() => setMode("chat")}
-          className={`pressable flex-1 rounded-lg py-2 text-sm font-medium ${
+          className={`pressable flex-1 rounded-lg py-2.5 text-sm font-medium ${
             mode === "chat" ? "bg-surface text-foreground shadow-sm" : "text-muted"
           }`}
         >

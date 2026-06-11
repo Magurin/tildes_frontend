@@ -69,21 +69,21 @@ export default function Translator({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface">
-      <div className="grid grid-cols-[1fr_auto_1fr]">
+      <div className="grid grid-cols-[1fr_auto_1fr] bg-surface-2/40">
         {/* Source header */}
-        <div className="px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-muted">
+        <div className="px-4 py-3.5 text-center text-sm font-semibold uppercase tracking-wide text-foreground">
           {sourceLabel}
         </div>
         {/* Swap */}
         <button
           onClick={swap}
           aria-label="Поменять языки местами"
-          className="pressable flex items-center justify-center border-x border-border px-3 text-primary"
+          className="pressable flex items-center justify-center border-x border-border px-4 text-primary hover:bg-surface"
         >
-          <SwapIcon width={20} height={20} aria-hidden />
+          <SwapIcon width={22} height={22} aria-hidden />
         </button>
         {/* Target header */}
-        <div className="px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-muted">
+        <div className="px-4 py-3.5 text-center text-sm font-semibold uppercase tracking-wide text-foreground">
           {targetLabel}
         </div>
       </div>
@@ -100,14 +100,14 @@ export default function Translator({
                 translate();
               }
             }}
-            rows={4}
+            rows={6}
             maxLength={2000}
             placeholder={
               direction === "ru2t"
                 ? "Введите текст по-русски…"
                 : `Введите текст на «${targetName}»…`
             }
-            className="min-h-[140px] w-full resize-none bg-transparent px-4 py-3.5 text-lg leading-7 focus:outline-none"
+            className="min-h-[44dvh] w-full resize-none bg-transparent px-5 py-5 text-2xl leading-9 focus:outline-none md:min-h-[48dvh]"
           />
           {text && (
             <button
@@ -124,8 +124,8 @@ export default function Translator({
         </div>
 
         {/* Target panel */}
-        <div className="relative min-h-[140px] border-t border-border bg-surface-2/40 px-4 py-3.5 md:border-t-0">
-          <p className="whitespace-pre-wrap text-lg leading-7 text-foreground">
+        <div className="relative min-h-[44dvh] border-t border-border bg-surface-2/40 px-5 py-5 md:min-h-[48dvh] md:border-t-0">
+          <p className="whitespace-pre-wrap text-2xl leading-9 text-foreground">
             {busy ? (
               <span className="text-muted">Перевожу…</span>
             ) : (
