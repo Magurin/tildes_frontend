@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useLanguages } from "./components/ActiveLanguageProvider";
-import { ChatIcon, UploadIcon, GlobeIcon, BookIcon, ChevronRight } from "./components/icons";
+import { ChatIcon, BookIcon, ChevronRight } from "./components/icons";
 
+// Moderator tools (upload, словари) живут в «Профиле» — здесь только то,
+// что нужно обычному посетителю.
 const actions = [
   {
     href: "/chat",
@@ -16,18 +18,6 @@ const actions = [
     title: "Учить язык",
     desc: "Карточки из собранного словаря — для новых носителей",
     Icon: BookIcon,
-  },
-  {
-    href: "/upload",
-    title: "Загрузить словари и учебники",
-    desc: "Материалы попадают в базу знаний (RAG)",
-    Icon: UploadIcon,
-  },
-  {
-    href: "/languages",
-    title: "Языки и словари",
-    desc: "Список языков и собранные словари",
-    Icon: GlobeIcon,
   },
 ];
 
