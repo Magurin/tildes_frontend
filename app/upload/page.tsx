@@ -3,12 +3,14 @@
 import { useRef, useState } from "react";
 import { useLanguages } from "../components/ActiveLanguageProvider";
 import LanguagePicker from "../components/LanguagePicker";
+import { ModeratorLogin, useModeratorSession } from "../components/ModeratorAuth";
 import { UploadIcon } from "../components/icons";
 
 type Result = { ok: boolean; message: string };
 
 export default function UploadPage() {
   const { activeId, active, refresh } = useLanguages();
+  const { session, loading, authHeader, signOut } = useModeratorSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -22,7 +24,11 @@ export default function UploadPage() {
       const fd = new FormData();
       fd.append("language_id", activeId);
       fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: authHeader,
+        body: fd,
+      });
       const json = await res.json();
       if (res.ok) {
         const note =
@@ -71,7 +77,20 @@ export default function UploadPage() {
         </p>
       </header>
 
-      <LanguagePicker label="Язык материала" />
+      {loading ? (
+        <p className="text-muted">Загрузка…</p>
+      ) : !session ? (
+        <ModeratorLogin />
+      ) : (
+        <>
+          <div className="flex items-center justify-between text-sm text-muted">
+            <span>Модератор: {session.user.email}</span>
+            <button onClick={signOut} className="pressable text-primary underline">
+              Выйти
+            </button>
+          </div>
+
+          <LanguagePicker label="Язык материала" />
 
       <div className="card p-4">
         <label
@@ -112,7 +131,9 @@ export default function UploadPage() {
             {result.message}
           </p>
         )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

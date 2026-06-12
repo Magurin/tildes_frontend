@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 /**
- * Browser Supabase client (anon key) for reading public lists directly
- * from client components.
+ * Browser Supabase client (anon key): public reads and the moderator's
+ * Supabase Auth session (persisted, so the login survives reloads).
  */
 let cached: ReturnType<typeof createClient> | null = null;
 
@@ -11,7 +11,7 @@ export function getSupabaseBrowser() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   cached = createClient(url, key, {
-    auth: { persistSession: false },
+    auth: { persistSession: true },
   });
   return cached;
 }

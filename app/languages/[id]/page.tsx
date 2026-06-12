@@ -3,6 +3,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Language, DictionaryEntry, DocumentRow } from "@/lib/types";
+import { useModeratorSession } from "@/app/components/ModeratorAuth";
 import {
   PencilIcon,
   TrashIcon,
@@ -26,6 +27,7 @@ export default function LanguageDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const { session, authHeader } = useModeratorSession();
   const [data, setData] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -192,6 +194,8 @@ export default function LanguageDetailPage({
               <EntryCard
                 key={e.id}
                 entry={e}
+                canEdit={!!session}
+                authHeader={authHeader}
                 onSaved={replaceEntry}
                 onDeleted={removeEntry}
               />
@@ -238,10 +242,14 @@ export default function LanguageDetailPage({
 
 function EntryCard({
   entry,
+  canEdit,
+  authHeader,
   onSaved,
   onDeleted,
 }: {
   entry: DictionaryEntry;
+  canEdit: boolean;
+  authHeader: Record<string, string>;
   onSaved: (e: DictionaryEntry) => void;
   onDeleted: (id: string) => void;
 }) {
@@ -260,7 +268,7 @@ function EntryCard({
     try {
       const res = await fetch(`/api/dictionary/${entry.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeader },
         body: JSON.stringify({
           term: form.term,
           translation: form.translation || null,
@@ -284,6 +292,7 @@ function EntryCard({
     try {
       const res = await fetch(`/api/dictionary/${entry.id}`, {
         method: "DELETE",
+        headers: authHeader,
       });
       if (res.ok) onDeleted(entry.id);
     } finally {
@@ -369,23 +378,25 @@ function EntryCard({
           <span className="text-[11px] uppercase tracking-wide text-primary/70">
             {entry.source}
           </span>
-          <div className="flex gap-1">
-            <button
-              onClick={() => setEditing(true)}
-              aria-label={`Править «${entry.term}»`}
-              className="pressable rounded-lg p-2 text-muted hover:text-foreground"
-            >
-              <PencilIcon width={16} height={16} aria-hidden />
-            </button>
-            <button
-              onClick={remove}
-              disabled={busy}
-              aria-label={`Удалить «${entry.term}»`}
-              className="pressable rounded-lg p-2 text-muted hover:text-destructive"
-            >
-              <TrashIcon width={16} height={16} aria-hidden />
-            </button>
-          </div>
+          {canEdit && (
+            <div className="flex gap-1">
+              <button
+                onClick={() => setEditing(true)}
+                aria-label={`Править «${entry.term}»`}
+                className="pressable rounded-lg p-2 text-muted hover:text-foreground"
+              >
+                <PencilIcon width={16} height={16} aria-hidden />
+              </button>
+              <button
+                onClick={remove}
+                disabled={busy}
+                aria-label={`Удалить «${entry.term}»`}
+                className="pressable rounded-lg p-2 text-muted hover:text-destructive"
+              >
+                <TrashIcon width={16} height={16} aria-hidden />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </li>

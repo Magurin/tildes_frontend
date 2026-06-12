@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { ingestChunks } from "@/lib/rag";
 import { geminiEnabled } from "@/lib/gemini";
+import { requireModerator } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 // Embedding a few thousand entries takes a while.
@@ -23,9 +24,12 @@ const LINES_PER_CHUNK = 8;
  * the previous index for the language is replaced.
  */
 export async function POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const denied = await requireModerator(req);
+  if (denied) return denied;
+
   const { id } = await params;
   if (!geminiEnabled())
     return NextResponse.json(

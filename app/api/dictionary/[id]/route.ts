@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { requireModerator } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,9 @@ export async function PATCH(
   request: NextRequest,
   ctx: RouteContext<"/api/dictionary/[id]">,
 ) {
+  const denied = await requireModerator(request);
+  if (denied) return denied;
+
   const { id } = await ctx.params;
   const body = await request.json().catch(() => null);
   if (!body)
@@ -55,9 +59,12 @@ export async function PATCH(
 
 /** DELETE — remove a dictionary entry (e.g. a failed recording). */
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   ctx: RouteContext<"/api/dictionary/[id]">,
 ) {
+  const denied = await requireModerator(req);
+  if (denied) return denied;
+
   const { id } = await ctx.params;
   const supabase = getSupabaseServer();
   const { error } = await supabase
