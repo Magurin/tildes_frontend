@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLanguages } from "./ActiveLanguageProvider";
+import { useAuthSession } from "./ModeratorAuth";
 import DrawingCanvas, { type DrawingCanvasHandle } from "./DrawingCanvas";
 import { MicIcon, StopIcon, SendIcon, CheckIcon } from "./icons";
 
@@ -16,6 +17,7 @@ type QuizImage = {
 /** Word capture: show a reference picture, draw the word, record the voice. */
 export default function CaptureMode({ languageId }: { languageId: string }) {
   const { active, refresh } = useLanguages();
+  const { authHeader } = useAuthSession();
   const canvasRef = useRef<DrawingCanvasHandle>(null);
 
   const [prompt, setPrompt] = useState<QuizImage | null>(null);
@@ -104,7 +106,11 @@ export default function CaptureMode({ languageId }: { languageId: string }) {
       if (prompt) fd.append("quiz_image_id", prompt.id);
       fd.append("audio", audioBlob, "voice.webm");
       if (drawing) fd.append("drawing", drawing, "drawing.png");
-      const res = await fetch("/api/quiz", { method: "POST", body: fd });
+      const res = await fetch("/api/quiz", {
+        method: "POST",
+        headers: authHeader,
+        body: fd,
+      });
       if (res.ok) {
         setSaved((c) => c + 1);
         applyAudio(null);

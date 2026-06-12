@@ -3,7 +3,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Language, DictionaryEntry, DocumentRow } from "@/lib/types";
-import { useModeratorSession } from "@/app/components/ModeratorAuth";
+import { useAuthSession } from "@/app/components/ModeratorAuth";
 import {
   PencilIcon,
   TrashIcon,
@@ -27,7 +27,7 @@ export default function LanguageDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { session, authHeader } = useModeratorSession();
+  const { isModerator, authHeader } = useAuthSession();
   const [data, setData] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -194,7 +194,7 @@ export default function LanguageDetailPage({
               <EntryCard
                 key={e.id}
                 entry={e}
-                canEdit={!!session}
+                canEdit={isModerator}
                 authHeader={authHeader}
                 onSaved={replaceEntry}
                 onDeleted={removeEntry}

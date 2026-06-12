@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { ingestChunks } from "@/lib/rag";
 import { geminiEnabled } from "@/lib/gemini";
-import { requireModerator } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 // Embedding a few thousand entries takes a while.
@@ -27,7 +27,7 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const denied = await requireModerator(req);
+  const denied = await requireRole(req, "moderator");
   if (denied) return denied;
 
   const { id } = await params;

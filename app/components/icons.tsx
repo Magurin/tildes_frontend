@@ -19,6 +19,13 @@ export const HomeIcon = (p: P) => (
   </svg>
 );
 
+export const UserIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </svg>
+);
+
 export const ChatIcon = (p: P) => (
   <svg {...base} {...p}>
     <path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z" />

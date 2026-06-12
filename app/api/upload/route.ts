@@ -5,7 +5,7 @@ import { chunkText, ingestChunks } from "@/lib/rag";
 import { isTabular, parseDictionaryTable } from "@/lib/dictImport";
 import { geminiEnabled } from "@/lib/gemini";
 import { BUCKETS } from "@/lib/config";
-import { requireModerator } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 // PDF parsing + embeddings can take a while.
@@ -20,7 +20,7 @@ export const maxDuration = 60;
  *              dictionary_entries, so spreadsheets become words, not chunks.
  */
 export async function POST(request: Request) {
-  const denied = await requireModerator(request);
+  const denied = await requireRole(request, "moderator");
   if (denied) return denied;
 
   const form = await request.formData();

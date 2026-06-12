@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { transcribeAudio } from "@/lib/deepgram";
 import { BUCKETS } from "@/lib/config";
+import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,9 @@ export async function GET(request: Request) {
  * drawing.
  */
 export async function POST(request: Request) {
+  const denied = await requireRole(request, "moderator");
+  if (denied) return denied;
+
   const form = await request.formData();
   const languageId = form.get("language_id") as string | null;
   const quizImageId = (form.get("quiz_image_id") as string | null) || null;

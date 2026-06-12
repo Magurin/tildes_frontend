@@ -3,14 +3,15 @@
 import { useRef, useState } from "react";
 import { useLanguages } from "../components/ActiveLanguageProvider";
 import LanguagePicker from "../components/LanguagePicker";
-import { ModeratorLogin, useModeratorSession } from "../components/ModeratorAuth";
+import { AuthForm, useAuthSession } from "../components/ModeratorAuth";
 import { UploadIcon } from "../components/icons";
 
 type Result = { ok: boolean; message: string };
 
 export default function UploadPage() {
   const { activeId, active, refresh } = useLanguages();
-  const { session, loading, authHeader, signOut } = useModeratorSession();
+  const { session, isModerator, loading, authHeader, signOut } =
+    useAuthSession();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -80,7 +81,12 @@ export default function UploadPage() {
       {loading ? (
         <p className="text-muted">Загрузка…</p>
       ) : !session ? (
-        <ModeratorLogin />
+        <AuthForm note="Загрузка материалов доступна только модераторам." />
+      ) : !isModerator ? (
+        <div className="card p-5 text-sm text-muted">
+          У вашего аккаунта нет прав модератора. Их выдаёт администратор
+          проекта.
+        </div>
       ) : (
         <>
           <div className="flex items-center justify-between text-sm text-muted">

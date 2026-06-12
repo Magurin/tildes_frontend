@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireModerator } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ export async function PATCH(
   request: NextRequest,
   ctx: RouteContext<"/api/dictionary/[id]">,
 ) {
-  const denied = await requireModerator(request);
+  const denied = await requireRole(request, "moderator");
   if (denied) return denied;
 
   const { id } = await ctx.params;
@@ -62,7 +62,7 @@ export async function DELETE(
   req: NextRequest,
   ctx: RouteContext<"/api/dictionary/[id]">,
 ) {
-  const denied = await requireModerator(req);
+  const denied = await requireRole(req, "moderator");
   if (denied) return denied;
 
   const { id } = await ctx.params;

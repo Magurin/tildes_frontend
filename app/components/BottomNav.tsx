@@ -2,17 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HomeIcon, ChatIcon, BookIcon, MicIcon } from "./icons";
+import { HomeIcon, ChatIcon, BookIcon, MicIcon, UserIcon } from "./icons";
+import { useAuthSession } from "./ModeratorAuth";
 
 const tabs = [
   { href: "/", label: "Главная", Icon: HomeIcon, exact: true },
   { href: "/chat", label: "Перевод", Icon: ChatIcon },
-  { href: "/capture", label: "Запись", Icon: MicIcon },
+  // «Запись» — сбор данных от носителей, виден только модераторам.
+  { href: "/capture", label: "Запись", Icon: MicIcon, moderator: true },
   { href: "/learn", label: "Учить", Icon: BookIcon },
+  { href: "/account", label: "Профиль", Icon: UserIcon },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { isModerator } = useAuthSession();
+  const visible = tabs.filter((t) => !t.moderator || isModerator);
 
   return (
     <nav
@@ -21,7 +26,7 @@ export default function BottomNav() {
       aria-label="Основная навигация"
     >
       <ul className="mx-auto flex max-w-lg items-stretch justify-around">
-        {tabs.map(({ href, label, Icon, exact }) => {
+        {visible.map(({ href, label, Icon, exact }) => {
           const active = exact
             ? pathname === href
             : pathname === href || pathname.startsWith(href + "/");
