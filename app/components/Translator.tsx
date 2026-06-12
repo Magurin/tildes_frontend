@@ -1,8 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SwapIcon, CopyIcon, XIcon, CheckIcon } from "./icons";
+import { SwapIcon, CopyIcon, XIcon, CheckIcon, MicIcon, StopIcon } from "./icons";
 import SpeakButton from "./SpeakButton";
+
+/* ---------------- Translation history (localStorage) ---------------- */
+
+type HistoryItem = {
+  text: string;
+  result: string;
+  direction: "ru2t" | "t2ru";
+  languageId: string;
+  ts: number;
+};
+
+const HISTORY_KEY = "tildes-translate-history";
+const HISTORY_MAX = 10;
+
+function loadHistory(): HistoryItem[] {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Two-panel translator (Russian ↔ target language) backed by /api/translate.
@@ -25,6 +46,42 @@ export default function Translator({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    // localStorage is client-only; populate after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHistory(loadHistory());
+  }, []);
+
+  function saveToHistory(item: HistoryItem) {
+    // Typing produces a chain of prefix queries («при», «привет») — keep
+    // only the longest; also collapse exact repeats.
+    const rest = loadHistory().filter(
+      (h) =>
+        !(
+          h.languageId === item.languageId &&
+          h.direction === item.direction &&
+          (item.text.startsWith(h.text) || h.text.startsWith(item.text))
+        ),
+    );
+    const next = [item, ...rest].slice(0, HISTORY_MAX);
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+    } catch {
+      /* storage may be full or blocked; history is best-effort */
+    }
+    setHistory(next);
+  }
+
+  function clearHistory() {
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+    } catch {
+      /* ignore */
+    }
+    setHistory([]);
+  }
 
   const sourceLabel = direction === "ru2t" ? "Русский" : targetName;
   const targetLabel = direction === "ru2t" ? targetName : "Русский";
@@ -35,6 +92,51 @@ export default function Translator({
     setText(result || text);
     setResult("");
     setError(null);
+  }
+
+  // Voice input (ru2t): record Russian speech, transcribe via Deepgram,
+  // drop the text into the source box — auto-translate picks it up.
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  async function toggleRecord() {
+    if (recording) {
+      recorderRef.current?.stop();
+      setRecording(false);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream);
+      chunksRef.current = [];
+      rec.ondataavailable = (e) => chunksRef.current.push(e.data);
+      rec.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        setTranscribing(true);
+        try {
+          const fd = new FormData();
+          fd.append("audio", blob, "voice.webm");
+          fd.append("language", "ru");
+          const res = await fetch("/api/transcribe", { method: "POST", body: fd });
+          const json = await res.json();
+          if (json.transcript) setText(json.transcript);
+          else setError("Не удалось распознать речь — попробуйте ещё раз");
+        } catch {
+          setError("Сетевая ошибка при распознавании");
+        } finally {
+          setTranscribing(false);
+        }
+      };
+      rec.start();
+      recorderRef.current = rec;
+      setError(null);
+      setRecording(true);
+    } catch {
+      setError("Нет доступа к микрофону");
+    }
   }
 
   // Auto-translate: fire after the user pauses typing; newer input aborts
@@ -64,8 +166,16 @@ export default function Translator({
         });
         const json = await res.json();
         if (ctrl.signal.aborted) return;
-        if (res.ok) setResult(json.translation);
-        else setError(json.error ?? "Ошибка перевода");
+        if (res.ok) {
+          setResult(json.translation);
+          saveToHistory({
+            text: value,
+            result: json.translation,
+            direction,
+            languageId,
+            ts: Date.now(),
+          });
+        } else setError(json.error ?? "Ошибка перевода");
       } catch (e) {
         if (!(e instanceof DOMException && e.name === "AbortError"))
           setError("Сетевая ошибка");
@@ -90,7 +200,10 @@ export default function Translator({
     }
   }
 
+  const visibleHistory = history.filter((h) => h.languageId === languageId);
+
   return (
+    <>
     <div className="overflow-hidden rounded-2xl border border-border bg-surface">
       <div className="grid grid-cols-[1fr_auto_1fr] bg-surface-2/40">
         {/* Source header */}
@@ -136,6 +249,29 @@ export default function Translator({
               className="pressable absolute right-2 top-2 rounded-full p-1.5 text-muted hover:text-foreground"
             >
               <XIcon width={18} height={18} aria-hidden />
+            </button>
+          )}
+          {direction === "ru2t" && (
+            <button
+              onClick={toggleRecord}
+              disabled={transcribing}
+              aria-label={recording ? "Остановить запись" : "Надиктовать по-русски"}
+              className={`pressable absolute bottom-2 left-3 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs ${
+                recording
+                  ? "animate-pulse bg-destructive text-white"
+                  : "bg-surface-2 text-muted hover:text-primary"
+              } disabled:opacity-50`}
+            >
+              {recording ? (
+                <StopIcon width={16} height={16} aria-hidden />
+              ) : (
+                <MicIcon width={16} height={16} aria-hidden />
+              )}
+              {recording
+                ? "Говорите…"
+                : transcribing
+                  ? "Распознаю…"
+                  : "Голосом"}
             </button>
           )}
         </div>
@@ -184,5 +320,43 @@ export default function Translator({
         </span>
       </div>
     </div>
+
+    {/* History: recent queries for this language, tap to re-run */}
+    {visibleHistory.length > 0 && (
+      <section className="mt-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
+            История
+          </h2>
+          <button
+            onClick={clearHistory}
+            className="pressable text-xs text-muted hover:text-foreground"
+          >
+            Очистить
+          </button>
+        </div>
+        <ul className="flex flex-col gap-1.5">
+          {visibleHistory.map((h) => (
+            <li key={`${h.ts}-${h.direction}`}>
+              <button
+                onClick={() => {
+                  setDirection(h.direction);
+                  setText(h.text);
+                }}
+                className="pressable w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-left"
+              >
+                <span className="block truncate text-[15px] text-foreground">
+                  {h.text}
+                </span>
+                <span className="block truncate text-sm text-muted">
+                  {h.result}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+    </>
   );
 }
