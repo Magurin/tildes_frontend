@@ -7,6 +7,7 @@ import { useAuthSession } from "../components/ModeratorAuth";
 type AdminUser = {
   id: string;
   email: string;
+  name: string | null;
   role: "user" | "moderator" | "admin";
   created_at: string;
   last_sign_in_at: string | null;
@@ -93,9 +94,10 @@ export default function AdminPage() {
             <li key={u.id} className="card flex items-center gap-3 p-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] font-medium text-foreground">
-                  {u.email}
+                  {u.name ?? u.email}
                 </p>
-                <p className="text-xs text-muted">
+                <p className="truncate text-xs text-muted">
+                  {u.name ? `${u.email} · ` : ""}
                   {ROLE_LABEL[u.role]} · с{" "}
                   {new Date(u.created_at).toLocaleDateString("ru-RU")}
                 </p>

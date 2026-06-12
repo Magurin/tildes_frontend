@@ -29,6 +29,12 @@ export async function GET(request: Request) {
     .map((u) => ({
       id: u.id,
       email: u.email ?? "",
+      name:
+        (typeof u.user_metadata?.display_name === "string" &&
+          u.user_metadata.display_name) ||
+        (typeof u.user_metadata?.full_name === "string" &&
+          u.user_metadata.full_name) ||
+        null,
       role: roleOf(u),
       created_at: u.created_at,
       last_sign_in_at: u.last_sign_in_at ?? null,

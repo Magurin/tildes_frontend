@@ -1,13 +1,73 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { AuthForm, useAuthSession } from "../components/ModeratorAuth";
+import { useAuthSession } from "../components/ModeratorAuth";
+import AuthForm, { displayNameOf } from "../components/AuthForm";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
+import { PencilIcon } from "../components/icons";
 
 const ROLE_LABEL: Record<string, string> = {
   user: "Пользователь",
   moderator: "Модератор",
   admin: "Администратор",
 };
+
+/** Display name with inline editing (saved to user_metadata.display_name). */
+function ProfileName({
+  user,
+}: {
+  user: { email?: string; user_metadata?: Record<string, unknown> };
+}) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(displayNameOf(user));
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    const value = name.trim();
+    if (!value || busy) return;
+    setBusy(true);
+    await getSupabaseBrowser().auth.updateUser({
+      data: { display_name: value },
+    });
+    setBusy(false);
+    setEditing(false);
+  }
+
+  if (editing)
+    return (
+      <div className="flex items-center gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={30}
+          autoFocus
+          onKeyDown={(e) => e.key === "Enter" && save()}
+          className="flex-1 rounded-xl border border-border bg-surface px-3 py-2 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+        <button
+          onClick={save}
+          disabled={busy || !name.trim()}
+          className="pressable rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          ОК
+        </button>
+      </div>
+    );
+
+  return (
+    <div className="flex items-center gap-2">
+      <p className="text-xl font-semibold text-foreground">{name}</p>
+      <button
+        onClick={() => setEditing(true)}
+        aria-label="Изменить логин"
+        className="pressable rounded-lg p-1.5 text-muted hover:text-foreground"
+      >
+        <PencilIcon width={15} height={15} aria-hidden />
+      </button>
+    </div>
+  );
+}
 
 export default function AccountPage() {
   const { session, role, isModerator, isAdmin, loading, signOut } =
@@ -34,10 +94,9 @@ export default function AccountPage() {
         <AuthForm />
       ) : (
         <div className="card flex flex-col gap-4 p-4">
-          <div>
-            <p className="font-semibold text-foreground">
-              {session.user.email}
-            </p>
+          <ProfileName user={session.user} />
+          <div className="-mt-3">
+            <p className="text-sm text-muted">{session.user.email}</p>
             <p className="mt-0.5 text-sm text-muted">
               Роль: {ROLE_LABEL[role]}
             </p>
