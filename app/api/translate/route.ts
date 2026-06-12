@@ -13,6 +13,31 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 const NMT_LANGS = new Set(["alt"]);
 
 /**
+ * Queries this short are dictionary lookups, not sentences: exact pairs beat
+ * both models (the NMT was trained on whole sentences and drifts to Kyrgyz
+ * forms on isolated terms).
+ */
+const DICT_QUERY_MAX_WORDS = 2;
+/** The NMT bridge charset (ө/ү/ң) → the Altai letters ӧ/ӱ/ҥ. */
+const TO_ALTAI: Record<string, string> = { ө: "ӧ", ү: "ӱ", ң: "ҥ" };
+
+/**
+ * Normalized lookup keys for a 1–2 word query, or [] for model-sized input.
+ * Looked up both as typed and in the Altai charset: alt users may paste the
+ * NMT's Kyrgyz letters, while e.g. Khakas spells ң natively.
+ */
+function dictQueries(text: string): string[] {
+  const words = text
+    .toLowerCase()
+    .split(/\s+/)
+    .map((w) => w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
+    .filter(Boolean);
+  if (words.length === 0 || words.length > DICT_QUERY_MAX_WORDS) return [];
+  const typed = words.join(" ").replace(/[%_]/g, "");
+  return [...new Set([typed, typed.replace(/[өүң]/g, (c) => TO_ALTAI[c])])];
+}
+
+/**
  * POST {language_id, text, direction} — translate between Russian and the
  * target language, grounded in the dictionary, grammar notes and corpus.
  *
@@ -30,14 +55,47 @@ export async function POST(request: Request) {
       { error: "language_id and text required" },
       { status: 400 },
     );
+
+  const supabase = getSupabaseServer();
+  // When translating from Russian we match the gloss (translation column);
+  // from the target language we match the headword (term column).
+  const col = direction === "ru2t" ? "translation" : "term";
+
+  // Hybrid: 1–2 word queries try an exact dictionary pair first and skip the
+  // models entirely on a hit — instant and never wrong.
+  const exact = dictQueries(text);
+  if (exact.length) {
+    const { data: hits } = await supabase
+      .from("dictionary_entries")
+      .select("term, translation, source")
+      .eq("language_id", languageId)
+      .or(exact.map((q) => `${col}.ilike."${q}"`).join(","))
+      .limit(10);
+    const hit = (hits ?? [])
+      .map((h) => ({
+        out: (direction === "ru2t" ? h.term : h.translation)?.trim(),
+        imported: h.source === "import",
+      }))
+      // The translator is Russian ⇄ target: a non-Cyrillic gloss (kaikki
+      // imports carry English ones) is a miss, not an answer — let the
+      // models handle it instead.
+      .filter((h): h is { out: string; imported: boolean } =>
+        /[а-яё]/i.test(h.out ?? ""),
+      )
+      // Imported pairs are curated; raw quiz recordings come last.
+      .sort((a, b) => Number(b.imported) - Number(a.imported))[0];
+    if (hit)
+      return NextResponse.json({
+        translation: hit.out,
+        model: "dictionary",
+        usedContext: 0,
+      });
+  }
+
   if (!geminiEnabled())
     return NextResponse.json({ error: "Gemini is not configured" }, { status: 503 });
 
-  const supabase = getSupabaseServer();
-
-  // Words from the input, used to pull matching dictionary entries. When
-  // translating from Russian we match the gloss (translation column); from
-  // the target language we match the headword (term column).
+  // Words from the input, used to pull matching dictionary entries.
   const words = [
     ...new Set(
       text
@@ -47,7 +105,6 @@ export async function POST(request: Request) {
         .filter((w) => w.length >= 2),
     ),
   ].slice(0, 12);
-  const col = direction === "ru2t" ? "translation" : "term";
   const orFilter = words.map((w) => `${col}.ilike.%${w}%`).join(",");
 
   const [{ data: language }, ragChunks, { data: dict }] = await Promise.all([
