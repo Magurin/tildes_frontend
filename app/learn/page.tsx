@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLanguages } from "../components/ActiveLanguageProvider";
 import LanguagePicker from "../components/LanguagePicker";
 import { CheckIcon, RepeatIcon } from "../components/icons";
+import SpeakButton from "../components/SpeakButton";
 import type { DictionaryEntry } from "@/lib/types";
 
 /**
@@ -75,7 +76,7 @@ export default function LearnPage() {
           «Загрузке».
         </div>
       ) : (
-        <Deck key={activeId} cards={cards} />
+        <Deck key={activeId} cards={cards} isoCode={active.iso_code} />
       )}
     </div>
   );
@@ -90,7 +91,13 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function Deck({ cards }: { cards: DictionaryEntry[] }) {
+function Deck({
+  cards,
+  isoCode,
+}: {
+  cards: DictionaryEntry[];
+  isoCode?: string | null;
+}) {
   const [queue, setQueue] = useState<DictionaryEntry[]>(() => shuffle(cards));
   const [revealed, setRevealed] = useState(false);
   const [known, setKnown] = useState(0);
@@ -172,12 +179,15 @@ function Deck({ cards }: { cards: DictionaryEntry[] }) {
 
         {revealed ? (
           <div className="w-full rounded-2xl bg-surface-2 p-4 text-center">
-            <p
-              className="text-2xl text-foreground"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {current.term}
-            </p>
+            <div className="flex items-center justify-center gap-2">
+              <p
+                className="text-2xl text-foreground"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {current.term}
+              </p>
+              <SpeakButton text={current.term} isoCode={isoCode} />
+            </div>
             {current.definition && (
               <p className="mt-1 text-sm text-muted">{current.definition}</p>
             )}
