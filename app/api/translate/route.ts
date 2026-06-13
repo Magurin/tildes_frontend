@@ -10,7 +10,7 @@ export const maxDuration = 60;
 /** Inference backend with the project's own NLLB+LoRA translator. */
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 /** Languages whose translations go through the own model first. */
-const NMT_LANGS = new Set(["alt"]);
+const NMT_LANGS = new Set(["alt", "kjh"]);
 
 /**
  * Queries this short are dictionary lookups, not sentences: exact pairs beat
