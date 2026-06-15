@@ -34,14 +34,15 @@ export const ChatIcon = (p: P) => (
 
 export const TranslateIcon = (p: P) => (
   <svg {...base} {...p}>
-    {/* Runic glyph (left): an X with serif terminals */}
-    <path d="M3.6 3.5 9.4 12.5" />
-    <path d="M9.4 3.5 3.6 12.5" />
-    <path d="M2.4 3.5H4.8M8.2 3.5H10.6M2.4 12.5H4.8M8.2 12.5H10.6" />
+    {/* Othala rune (left): a diamond standing on two splayed legs */}
+    <path d="M6 3.2 2.4 7" />
+    <path d="M6 3.2 9.6 7" />
+    <path d="M2.4 7 8.8 16" />
+    <path d="M9.6 7 3.2 16" />
     {/* Ö (right): capital O with a diaeresis */}
-    <circle cx="16.8" cy="15.6" r="4" />
-    <circle cx="15" cy="9.2" r="0.95" fill="currentColor" stroke="none" />
-    <circle cx="18.6" cy="9.2" r="0.95" fill="currentColor" stroke="none" />
+    <circle cx="17" cy="13.6" r="4.1" />
+    <circle cx="15.1" cy="6.8" r="0.95" fill="currentColor" stroke="none" />
+    <circle cx="18.9" cy="6.8" r="0.95" fill="currentColor" stroke="none" />
   </svg>
 );
 
