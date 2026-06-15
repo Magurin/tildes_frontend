@@ -21,7 +21,7 @@ roles via /api/admin/users. Client role/session: `useAuthSession` in
   `dictionary/[id]` (PATCH/DELETE), `languages/[id]/export` (CSV/CLDF) handlers.
 - `lib/` — `supabase/{server,client}.ts`, `gemini.ts`, `deepgram.ts`, `rag.ts`, `config.ts`, `types.ts`.
 - `app/components/` — `ActiveLanguageProvider` (active language in localStorage),
-  `BottomNav`, `LanguagePicker`, `PWARegister`, `icons.tsx`.
+  `BottomNav`, `LanguageSwitcher`, `PWARegister`, `icons.tsx`.
 - Pages: `app/page.tsx`, `app/chat`, `app/learn` (flashcards), `app/upload`,
   `app/languages`, `app/languages/[id]`.
 - `lib/dictImport.ts` — dependency-free CSV/TSV dictionary parser (upload route).

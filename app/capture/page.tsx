@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLanguages } from "../components/ActiveLanguageProvider";
-import LanguagePicker from "../components/LanguagePicker";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import LanguageNameForm from "../components/LanguageNameForm";
 import CaptureMode from "../components/CaptureMode";
 import { AuthForm, useAuthSession } from "../components/ModeratorAuth";
@@ -79,7 +79,7 @@ export default function CapturePage() {
         </p>
       </header>
 
-      <LanguagePicker />
+      <LanguageSwitcher />
 
       <CaptureMode languageId={activeId} />
     </div>

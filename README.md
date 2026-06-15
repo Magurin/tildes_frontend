@@ -52,7 +52,7 @@ yarn dev --experimental-https
 - `app/api/*` — route handlers: `quiz`, `chat`, `upload`, `transcribe`, `languages`.
 - `lib/` — клиенты Supabase (`supabase/`), `gemini.ts`, `deepgram.ts`, `rag.ts`, `config.ts`.
 - `app/components/` — `ActiveLanguageProvider` (активный язык в localStorage), `BottomNav`,
-  `LanguagePicker`, `PWARegister`, иконки.
+  `LanguageSwitcher`, `PWARegister`, иконки.
 
 ## База данных
 

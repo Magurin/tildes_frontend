@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useLanguages } from "../components/ActiveLanguageProvider";
-import LanguagePicker from "../components/LanguagePicker";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { AuthForm, useAuthSession } from "../components/ModeratorAuth";
 import { UploadIcon, DownloadIcon } from "../components/icons";
 
@@ -97,7 +97,7 @@ export default function UploadPage() {
             </button>
           </div>
 
-          <LanguagePicker label="Язык материала" />
+          <LanguageSwitcher label="Язык материала" />
 
       <div className="card p-4">
         <label

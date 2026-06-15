@@ -23,7 +23,7 @@ function statusOf(status: string) {
  * a card-grid modal to switch. Replaces the plain dropdown and the separate
  * "Языки" tab — language choice now lives where it is used.
  */
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ label }: { label?: string }) {
   const { languages, active, setActiveId, loading } = useLanguages();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -41,6 +41,9 @@ export default function LanguageSwitcher() {
   return (
     <>
       {/* Trigger */}
+      {label && (
+        <span className="mb-1 block text-xs font-medium text-muted">{label}</span>
+      )}
       <button
         onClick={() => setOpen(true)}
         disabled={loading || languages.length === 0}
