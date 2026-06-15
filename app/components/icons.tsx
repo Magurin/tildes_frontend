@@ -13,13 +13,17 @@ const base = {
 
 export const HomeIcon = (p: P) => (
   <svg {...base} {...p}>
-    {/* Yurt: domed roof with a crown, cylindrical wall, arched door */}
-    <path d="M3.5 12q8.5-8 17 0" />
-    <path d="M12 8.4 6.8 12M12 8.4 17.2 12" />
-    <circle cx="12" cy="7.6" r="1.1" />
-    <path d="M5.5 12v8M18.5 12v8" />
-    <path d="M4 20h16" />
-    <path d="M10 20v-3.6q2-1.4 4 0V20" />
+    {/* Yurt: wide conical roof, crown (toono), barrel wall with bands, door */}
+    <path d="M3 12C4.5 8 9 6 12 6s7.5 2 9 6" />
+    <ellipse cx="12" cy="5" rx="2.3" ry="1.2" />
+    <path d="M12 3.9V6.1" />
+    <path d="M3.6 12C3.2 15 3.4 17.6 4.6 19" />
+    <path d="M20.4 12C20.8 15 20.6 17.6 19.4 19" />
+    <path d="M4.6 19C9 20.4 15 20.4 19.4 19" />
+    <path d="M3.5 14.4C8 15.3 16 15.3 20.5 14.4" />
+    <path d="M3.8 16.9C8 17.7 16 17.7 20.2 16.9" />
+    <path d="M9.5 19.1V13.6h5V19.1" />
+    <path d="M12 13.6V19.1" />
   </svg>
 );
 
@@ -50,11 +54,11 @@ export const TranslateIcon = (p: P) => (
   </svg>
 );
 
-export const GraduationCapIcon = (p: P) => (
+export const FeatherIcon = (p: P) => (
   <svg {...base} {...p}>
-    <path d="M21.4 10.1 12 14 2.6 10.1a.6.6 0 0 1 0-1.1L12 5l9.4 4a.6.6 0 0 1 0 1.1Z" />
-    <path d="M22 10v5" />
-    <path d="M6 12.2V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-3.8" />
+    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+    <path d="M16 8 2 22" />
+    <path d="M17.5 15H9" />
   </svg>
 );
 
