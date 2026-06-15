@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useLanguages } from "../components/ActiveLanguageProvider";
-import LanguagePicker from "../components/LanguagePicker";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { CheckIcon, XIcon, RepeatIcon, HeartIcon } from "../components/icons";
 import SpeakButton from "../components/SpeakButton";
 import type { DictionaryEntry, SentencePair } from "@/lib/types";
@@ -115,7 +115,7 @@ export default function LearnPage() {
         </p>
       </header>
 
-      <LanguagePicker />
+      <LanguageSwitcher />
 
       {entries === null ? (
         <p className="text-muted">Загрузка словаря…</p>
