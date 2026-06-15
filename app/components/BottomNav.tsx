@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   HomeIcon,
   TranslateIcon,
-  FeatherIcon,
+  ScrollIcon,
   MicIcon,
   UploadIcon,
   UserIcon,
@@ -18,7 +18,7 @@ const tabs = [
   // «Запись» и «Загрузка» — работа с данными, видны только модераторам.
   { href: "/capture", label: "Запись", Icon: MicIcon, moderator: true },
   { href: "/upload", label: "Загрузка", Icon: UploadIcon, moderator: true },
-  { href: "/learn", label: "Учить", Icon: FeatherIcon },
+  { href: "/learn", label: "Учить", Icon: ScrollIcon },
 ];
 
 // «Профиль» закреплён внизу панели, отдельно от основной навигации.

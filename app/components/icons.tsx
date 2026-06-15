@@ -47,14 +47,13 @@ export const TranslateIcon = (p: P) => (
   </svg>
 );
 
-export const FeatherIcon = (p: P) => (
+export const ScrollIcon = (p: P) => (
   <svg {...base} {...p}>
-    {/* Quill: slender vane with a central shaft running through to a bare nib */}
-    <g transform="rotate(40 12 12)">
-      <path d="M13 3C12 9 11 16 9.3 22" />
-      <path d="M13 3C9.5 5 8.3 12 11 16" />
-      <path d="M13 3C15 5.5 14 12.5 11 16" />
-    </g>
+    {/* Scroll/parchment with two text lines */}
+    <path d="M15 12h-5" />
+    <path d="M15 8h-5" />
+    <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+    <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />
   </svg>
 );
 
