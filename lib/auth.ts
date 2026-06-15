@@ -6,9 +6,10 @@ import { createClient, type User } from "@supabase/supabase-js";
  *
  * The role lives in Supabase Auth `app_metadata.role` — it is embedded in
  * the JWT and can only be changed with the service key (the /api/admin
- * routes), never from the client. Sign-up gives a plain "user"; admins
- * grant "moderator" in the админка. Emails in MODERATOR_EMAILS are admins
- * regardless (bootstrap so the админка can never lock itself out).
+ * routes), never from the client. Sign-up gives "moderator" by default
+ * (a DB trigger on auth.users, see db/default_role_trigger.sql). Emails in
+ * MODERATOR_EMAILS are admins regardless (bootstrap so the админка can never
+ * lock itself out).
  */
 
 export type Role = "user" | "moderator" | "admin";
