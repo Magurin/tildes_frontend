@@ -21,21 +21,25 @@ import pyarrow.parquet as pq
 # The corpus mixes Latin lookalikes into Cyrillic text.
 LATIN_FIX = str.maketrans({"ö": "ӧ", "Ö": "Ӧ", "ÿ": "ӱ", "ü": "ӱ", "Ü": "Ӱ"})
 
-# Per-language config: corpus columns, allowed alphabet, language_id.
+# Per-language config: corpus column names + language_id. The target text is
+# validated against the whole Cyrillic Unicode block rather than a hand-listed
+# alphabet, so we don't accidentally drop language-specific letters (Khakas ҷ і
+# ғ ң, Altai ҥ ј, …).
 CONFIGS = {
     "alt": {
         "language_id": "df9bbb7f-1681-42c7-b985-5facae0c307c",
         "ru_col": "Русский",
         "target_col": "Алтайский",
-        "target_chars": "а-яёӧӱҥј",
     },
     "kjh": {
         "language_id": "72106c8b-af18-46e2-94ea-7b7a02c168b1",
-        "ru_col": "Русский",
-        "target_col": "Хакасский",
-        "target_chars": "а-яёғіӧӱҥ",
+        "ru_col": "ru",
+        "target_col": "kjh",
     },
 }
+
+# Cyrillic block U+0400–U+04FF (covers Russian + all Turkic-Cyrillic letters).
+CYR = "Ѐ-ӿ"
 
 MIN_T, MAX_T = 3, 8   # target-language word count window
 MIN_RU, MAX_RU = 3, 10
@@ -77,8 +81,8 @@ def main() -> None:
     if not corpus.exists():
         sys.exit(f"corpus not found: {corpus}")
 
-    ru_ok = re.compile(rf"^[а-яё][а-яё ,.!?-]*[.!?]?$", re.I)
-    tgt_ok = re.compile(rf"^[{cfg['target_chars']}][{cfg['target_chars']} ,.!?-]*[.!?]?$", re.I)
+    ru_ok = re.compile(r"^[а-яё][а-яё ,.!?-]*[.!?]?$", re.I)
+    tgt_ok = re.compile(rf"^[{CYR}][{CYR} ,.!?-]*[.!?]?$", re.I)
 
     rows = pq.read_table(corpus).to_pylist()
     pairs: dict[str, tuple[str, str]] = {}  # key=target.lower() -> (target, ru)
