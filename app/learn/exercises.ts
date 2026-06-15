@@ -313,6 +313,64 @@ function sentenceTokens(s: string): string[] {
     .filter(Boolean);
 }
 
+/** Normalize a word for stem comparison (drop case, edge punctuation). */
+function stemNorm(s: string): string {
+  return s.toLowerCase().replace(/[.,!?;:()«»"\-]/g, "").trim();
+}
+
+function commonPrefixLen(a: string, b: string): number {
+  const n = Math.min(a.length, b.length);
+  let i = 0;
+  while (i < n && a[i] === b[i]) i++;
+  return i;
+}
+
+// Words shorter than this are treated as grammatical particles (ла, ле, је…)
+// and don't count toward "do you know this sentence's vocabulary".
+const CONTENT_MIN = 4;
+
+/** A sentence token is "known" if a studied stem is its prefix (Turkic glues
+ * suffixes onto the lemma, so the lemma leads the inflected form). */
+function tokenKnown(token: string, stems: string[]): boolean {
+  const t = stemNorm(token);
+  for (const k of stems) {
+    if (t === k) return true;
+    if (Math.min(t.length, k.length) >= CONTENT_MIN && commonPrefixLen(t, k) >= CONTENT_MIN)
+      return true;
+  }
+  return false;
+}
+
+/** Fraction of a sentence's *content* words (≥4 chars) the learner already
+ * knows. Short particles are ignored — they aren't vocabulary to gate on. */
+export function sentenceKnownRatio(target: string, stems: string[]): number {
+  const content = sentenceTokens(target).filter(
+    (t) => stemNorm(t).length >= CONTENT_MIN,
+  );
+  if (!content.length) return 0;
+  let known = 0;
+  for (const tk of content) if (tokenKnown(tk, stems)) known += 1;
+  return known / content.length;
+}
+
+/**
+ * Keep only sentences whose vocabulary the learner has mostly studied — so
+ * "translate the sentence" never asks for words they've never seen. `studied`
+ * is the list of already-learned terms (their lemmas).
+ */
+export function learnableSentences(
+  pairs: SentencePair[],
+  studied: string[],
+  minRatio = 0.8,
+): SentencePair[] {
+  const stems = studied
+    .flatMap((t) => t.toLowerCase().split(/\s+/))
+    .map(stemNorm)
+    .filter((s) => s.length >= 3);
+  if (!stems.length) return [];
+  return pairs.filter((p) => sentenceKnownRatio(p.target, stems) >= minRatio);
+}
+
 /**
  * Turn sentence pairs into "translate the sentence" exercises. Each answer is
  * the tokenized target; the word bank adds a couple of decoy words pulled from

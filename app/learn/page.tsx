@@ -11,6 +11,7 @@ import {
   buildLesson,
   buildSentenceExercises,
   isCognate,
+  learnableSentences,
   shuffle,
   srsKey,
   type Exercise,
@@ -138,6 +139,11 @@ export default function LearnPage() {
 
 const LESSON_SIZE = 12;
 const MAX_HEARTS = 5;
+// Sentence translations only unlock once the learner has a base vocabulary, and
+// only for sentences whose words they've mostly studied — never a wall of
+// unseen words. (Studied = answered right at least once, Leitner box ≥ 1.)
+const SENTENCE_MIN_VOCAB = 15;
+const SENTENCE_MIN_RATIO = 0.8;
 
 /** Weave sentence exercises among word ones — one sentence per `wordsPer`
  * words — so a lesson alternates vocabulary recall with real sentences. */
@@ -216,8 +222,12 @@ function LessonRound({
       .filter(Boolean);
     const wordEx = buildLesson(ordered, cards, LESSON_SIZE);
 
-    // Sentence translations are woven in (~1 of every 3 exercises), ordered by
-    // spaced repetition like the words. None for languages without a corpus.
+    // Sentence translations are woven in (~1 of every 3 exercises) — but only
+    // once the learner knows enough words, and only for sentences whose
+    // vocabulary they've mostly studied (no walls of unseen words).
+    const studiedTerms = cards
+      .filter((c) => (prog.cards[c.id]?.box ?? 0) >= 1)
+      .map((c) => c.term);
     const orderedPairs = sortForStudy(
       shuffle(sentences.map((s) => s.id)),
       prog.cards,
@@ -225,8 +235,12 @@ function LessonRound({
     )
       .map((id) => sentences.find((s) => s.id === id)!)
       .filter(Boolean);
+    const learnablePairs =
+      studiedTerms.length >= SENTENCE_MIN_VOCAB
+        ? learnableSentences(orderedPairs, studiedTerms, SENTENCE_MIN_RATIO)
+        : [];
     const sentEx = buildSentenceExercises(
-      orderedPairs,
+      learnablePairs,
       Math.ceil(LESSON_SIZE / 3),
     );
 
