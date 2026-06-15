@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLanguages } from "./ActiveLanguageProvider";
-import { ChevronRight, XIcon, CheckIcon, BookIcon } from "./icons";
+import { XIcon, CheckIcon, BookIcon } from "./icons";
 
 /** Status → short Russian label + accent colour class. */
 const STATUS_META: Record<string, { label: string; cls: string }> = {
@@ -163,17 +163,6 @@ export default function LanguageSwitcher() {
                   Ничего не найдено.
                 </p>
               )}
-            </div>
-
-            <div className="flex items-center justify-between border-t border-border px-5 py-3">
-              <Link
-                href="/languages"
-                onClick={() => setOpen(false)}
-                className="pressable inline-flex items-center gap-1 text-sm text-primary"
-              >
-                Все словари
-                <ChevronRight width={16} height={16} aria-hidden />
-              </Link>
             </div>
           </div>
         </div>

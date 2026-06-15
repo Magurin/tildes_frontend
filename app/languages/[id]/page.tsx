@@ -76,8 +76,8 @@ export default function LanguageDetailPage({
     return (
       <div className="pt-6">
         <p className="text-muted">Язык не найден.</p>
-        <Link href="/languages" className="text-primary underline">
-          ← К списку
+        <Link href="/" className="text-primary underline">
+          ← На главную
         </Link>
       </div>
     );
@@ -87,8 +87,8 @@ export default function LanguageDetailPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/languages" className="text-sm text-muted">
-        ← Языки
+      <Link href="/" className="text-sm text-muted">
+        ← На главную
       </Link>
 
       <header>
