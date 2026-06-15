@@ -20,6 +20,25 @@ function slug(name: string): string {
   );
 }
 
+/** ASCII-only slug (HTTP headers can't carry non-Latin1 characters). */
+function asciiSlug(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "dictionary"
+  );
+}
+
+/**
+ * Content-Disposition with an ASCII fallback plus an RFC 5987 UTF-8 name, so
+ * a Cyrillic-named dictionary doesn't blow up the (Latin1-only) header.
+ */
+function contentDisposition(prettyName: string, asciiName: string): string {
+  const safeAscii = (asciiName || "dictionary").replace(/[^\x20-\x7e]/g, "_");
+  return `attachment; filename="${safeAscii}"; filename*=UTF-8''${encodeURIComponent(prettyName)}`;
+}
+
 /**
  * GET ?format=csv|cldf — export a language's dictionary.
  *
@@ -50,6 +69,7 @@ export async function GET(
     return NextResponse.json({ error: "not found" }, { status: 404 });
   const rows = (entries ?? []) as DictionaryEntry[];
   const base = slug(language.name);
+  const asciiBase = asciiSlug(language.iso_code ?? language.name);
 
   if (format === "cldf") {
     const doc = {
@@ -79,7 +99,10 @@ export async function GET(
     return new NextResponse(JSON.stringify(doc, null, 2), {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "Content-Disposition": `attachment; filename="${base}-cldf.json"`,
+        "Content-Disposition": contentDisposition(
+          `${base}-cldf.json`,
+          `${asciiBase}-cldf.json`,
+        ),
       },
     });
   }
@@ -113,7 +136,10 @@ export async function GET(
   return new NextResponse("\uFEFF" + lines.join("\r\n"), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${base}-dictionary.csv"`,
+      "Content-Disposition": contentDisposition(
+        `${base}-dictionary.csv`,
+        `${asciiBase}-dictionary.csv`,
+      ),
     },
   });
 }
