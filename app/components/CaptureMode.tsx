@@ -181,7 +181,7 @@ export default function CaptureMode({ languageId }: { languageId: string }) {
         </div>
         <DrawingCanvas
           ref={canvasRef}
-          className="mx-auto block max-w-[min(100%,52vh)] border border-border"
+          className="mx-auto block max-w-[min(100%,80vh)] border border-border"
         />
       </div>
 
