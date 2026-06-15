@@ -38,7 +38,7 @@ export default function Landing() {
   return (
     <div className="flex flex-col gap-14 pb-4">
       {/* ───────── Hero ───────── */}
-      <section className="animate-fade-up overflow-hidden rounded-3xl border border-border bg-gradient-to-b from-surface-2/80 to-surface">
+      <section className="animate-fade-up flex h-[calc(100dvh-2rem)] min-h-[30rem] flex-col overflow-hidden rounded-3xl border border-border bg-gradient-to-b from-surface-2/80 to-surface">
         <div className="px-6 pt-8 sm:px-9 sm:pt-12">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-medium text-primary ring-1 ring-border">
             <SparklesIcon width={13} height={13} aria-hidden />
@@ -71,7 +71,7 @@ export default function Landing() {
             </Link>
           </div>
         </div>
-        <div className="relative mt-8 aspect-[16/10] overflow-hidden">
+        <div className="relative mt-8 min-h-0 flex-1 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/hero-mountain.jpg"
