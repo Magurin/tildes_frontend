@@ -179,7 +179,10 @@ export default function CaptureMode({ languageId }: { languageId: string }) {
             Очистить
           </button>
         </div>
-        <DrawingCanvas ref={canvasRef} className="border border-border" />
+        <DrawingCanvas
+          ref={canvasRef}
+          className="mx-auto block max-w-[min(100%,52vh)] border border-border"
+        />
       </div>
 
       <div className="card flex flex-col gap-3 p-4">
