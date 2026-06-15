@@ -29,9 +29,14 @@ export function useAuthSession() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Гость (без входа в аккаунт) считается модератором — ему доступны
+  // модераторские разделы. У вошедшего пользователя роль берётся из JWT.
   const metaRole = session?.user.app_metadata?.role;
-  const role: ClientRole =
-    metaRole === "admin" || metaRole === "moderator" ? metaRole : "user";
+  const role: ClientRole = !session
+    ? "moderator"
+    : metaRole === "admin" || metaRole === "moderator"
+      ? metaRole
+      : "user";
 
   return {
     session,
