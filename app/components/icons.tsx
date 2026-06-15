@@ -32,6 +32,24 @@ export const ChatIcon = (p: P) => (
   </svg>
 );
 
+export const TranslateIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 5h7" />
+    <path d="M7 4v1c0 4-2 7-5 9" />
+    <path d="M5 9c0 2 2 4 5 5" />
+    <path d="m13 20 4-9 4 9" />
+    <path d="M14.5 17h5" />
+  </svg>
+);
+
+export const GraduationCapIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M21.4 10.1 12 14 2.6 10.1a.6.6 0 0 1 0-1.1L12 5l9.4 4a.6.6 0 0 1 0 1.1Z" />
+    <path d="M22 10v5" />
+    <path d="M6 12.2V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-3.8" />
+  </svg>
+);
+
 export const UploadIcon = (p: P) => (
   <svg {...base} {...p}>
     <path d="M12 15V3" />

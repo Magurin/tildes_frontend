@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   HomeIcon,
-  ChatIcon,
-  BookIcon,
+  TranslateIcon,
+  GraduationCapIcon,
   MicIcon,
   UploadIcon,
   UserIcon,
@@ -14,11 +14,11 @@ import { useAuthSession } from "./ModeratorAuth";
 
 const tabs = [
   { href: "/", label: "Главная", Icon: HomeIcon, exact: true },
-  { href: "/chat", label: "Перевод", Icon: ChatIcon },
+  { href: "/chat", label: "Перевод", Icon: TranslateIcon },
   // «Запись» и «Загрузка» — работа с данными, видны только модераторам.
   { href: "/capture", label: "Запись", Icon: MicIcon, moderator: true },
   { href: "/upload", label: "Загрузка", Icon: UploadIcon, moderator: true },
-  { href: "/learn", label: "Учить", Icon: BookIcon },
+  { href: "/learn", label: "Учить", Icon: GraduationCapIcon },
 ];
 
 // «Профиль» закреплён внизу панели, отдельно от основной навигации.
@@ -49,7 +49,7 @@ export default function BottomNav() {
           <Icon
             width={24}
             height={24}
-            strokeWidth={active ? 2.4 : 2}
+            strokeWidth={active ? 2.25 : 1.75}
             aria-hidden
             className="transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-110 group-active:translate-y-0 group-active:scale-100"
           />
