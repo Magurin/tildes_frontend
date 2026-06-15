@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useLanguages } from "./ActiveLanguageProvider";
-import { XIcon, CheckIcon, BookIcon } from "./icons";
+import { XIcon, CheckIcon } from "./icons";
 
 /** Status → short Russian label + accent colour class. */
 const STATUS_META: Record<string, { label: string; cls: string }> = {
@@ -150,14 +149,6 @@ export default function LanguageSwitcher({ label }: { label?: string }) {
                         <span className="text-muted">· {l.entry_count} слов</span>
                       </span>
                     </span>
-                    <Link
-                      href={`/languages/${l.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label={`Словарь языка ${l.name}`}
-                      className="pressable shrink-0 rounded-lg p-2 text-muted hover:text-primary"
-                    >
-                      <BookIcon width={18} height={18} aria-hidden />
-                    </Link>
                   </button>
                 );
               })}
