@@ -5,8 +5,9 @@ import { SpeakerIcon } from "./icons";
 
 /** Inference backend (Railway) with the MMS-TTS voices. */
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
-/** Languages with a verified MMS voice on the backend. */
-const TTS_LANGS = new Set(["alt", "kjh", "cjs", "nog", "crh"]);
+/** Languages the backend can speak: 5 native MMS voices + 3 close-language
+ *  fallbacks (atv→alt, gag→tur, tyv→kir). Keep in sync with SUPPORTED_TTS. */
+const TTS_LANGS = new Set(["alt", "kjh", "cjs", "nog", "crh", "atv", "gag", "tyv"]);
 
 /** Whether the speak button will render for this language at all. */
 export function ttsAvailable(isoCode?: string | null): boolean {
