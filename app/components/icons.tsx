@@ -13,9 +13,13 @@ const base = {
 
 export const HomeIcon = (p: P) => (
   <svg {...base} {...p}>
-    <path d="M3 10.5 12 3l9 7.5" />
-    <path d="M5 9.5V21h14V9.5" />
-    <path d="M9 21v-6h6v6" />
+    {/* Yurt: domed roof with a crown, cylindrical wall, arched door */}
+    <path d="M3.5 12q8.5-8 17 0" />
+    <path d="M12 8.4 6.8 12M12 8.4 17.2 12" />
+    <circle cx="12" cy="7.6" r="1.1" />
+    <path d="M5.5 12v8M18.5 12v8" />
+    <path d="M4 20h16" />
+    <path d="M10 20v-3.6q2-1.4 4 0V20" />
   </svg>
 );
 
