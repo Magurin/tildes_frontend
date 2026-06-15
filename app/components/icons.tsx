@@ -50,9 +50,10 @@ export const TranslateIcon = (p: P) => (
 
 export const FeatherIcon = (p: P) => (
   <svg {...base} {...p}>
-    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
-    <path d="M16 8 2 22" />
-    <path d="M17.5 15H9" />
+    {/* Slender quill: vane leaf, curved shaft tapering to a fine nib, one barb */}
+    <path d="M18.7 4C20.5 8 18 13.5 12 16.5C10 17.5 8 18.2 6.4 19C8 14 11 8 18.7 4Z" />
+    <path d="M18.7 4C13.5 8 9 13.5 4 21" />
+    <path d="M14.6 8.2 9.2 14" />
   </svg>
 );
 
