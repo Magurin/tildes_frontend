@@ -35,8 +35,8 @@ export default function BottomNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`pressable flex min-h-[56px] flex-col items-center justify-center gap-1 px-2 py-2 text-[11px] font-medium ${
-                  active ? "text-primary" : "text-muted"
+                className={`group pressable mx-1 my-1 flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-medium transition-colors duration-200 hover:bg-surface-2 hover:text-primary ${
+                  active ? "bg-surface-2/70 text-primary" : "text-muted"
                 }`}
               >
                 <Icon
@@ -44,8 +44,9 @@ export default function BottomNav() {
                   height={24}
                   strokeWidth={active ? 2.4 : 2}
                   aria-hidden
+                  className="transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-110 group-active:translate-y-0 group-active:scale-100"
                 />
-                <span>{label}</span>
+                <span className="transition-colors duration-200">{label}</span>
               </Link>
             </li>
           );
