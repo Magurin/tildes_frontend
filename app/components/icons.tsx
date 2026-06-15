@@ -34,11 +34,14 @@ export const ChatIcon = (p: P) => (
 
 export const TranslateIcon = (p: P) => (
   <svg {...base} {...p}>
-    <path d="M4 5h7" />
-    <path d="M7 4v1c0 4-2 7-5 9" />
-    <path d="M5 9c0 2 2 4 5 5" />
-    <path d="m13 20 4-9 4 9" />
-    <path d="M14.5 17h5" />
+    {/* Runic glyph (left): an X with serif terminals */}
+    <path d="M3.6 3.5 9.4 12.5" />
+    <path d="M9.4 3.5 3.6 12.5" />
+    <path d="M2.4 3.5H4.8M8.2 3.5H10.6M2.4 12.5H4.8M8.2 12.5H10.6" />
+    {/* Ö (right): capital O with a diaeresis */}
+    <circle cx="16.8" cy="15.6" r="4" />
+    <circle cx="15" cy="9.2" r="0.95" fill="currentColor" stroke="none" />
+    <circle cx="18.6" cy="9.2" r="0.95" fill="currentColor" stroke="none" />
   </svg>
 );
 
