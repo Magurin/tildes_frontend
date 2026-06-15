@@ -38,19 +38,32 @@ export default function Landing() {
   return (
     <div className="flex flex-col gap-14 pb-4">
       {/* ───────── Hero ───────── */}
-      <section className="animate-fade-up flex h-[calc(100dvh-2rem)] min-h-[30rem] flex-col overflow-hidden rounded-3xl border border-border bg-gradient-to-b from-surface-2/80 to-surface">
-        <div className="px-6 pt-8 sm:px-9 sm:pt-12">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-medium text-primary ring-1 ring-border">
+      <section className="animate-fade-up relative flex h-[calc(100dvh-2rem)] min-h-[32rem] flex-col justify-end overflow-hidden rounded-3xl">
+        {/* Full-bleed photo background */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero-mountain.jpg"
+          alt="Заснеженная вершина в золотом свете рассвета"
+          className="absolute inset-0 h-full w-full animate-zoom-slow object-cover"
+          loading="eager"
+        />
+        {/* Scrims: darker at the bottom (behind text) for legibility */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+
+        {/* Content over the photo */}
+        <div className="relative z-10 px-6 pb-10 sm:px-10 sm:pb-14">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/30 backdrop-blur">
             <SparklesIcon width={13} height={13} aria-hidden />
             Языки, которых нет ни в Google, ни в Яндексе
           </span>
           <h1
-            className="mt-4 text-4xl leading-[1.08] text-foreground sm:text-5xl"
+            className="mt-4 max-w-2xl text-4xl leading-[1.08] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)] sm:text-5xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Сохраняем языки, пока звучит хотя бы один голос
           </h1>
-          <p className="mt-4 max-w-xl text-[15px] leading-7 text-muted sm:text-base">
+          <p className="mt-4 max-w-xl text-[15px] leading-7 text-white/90 [text-shadow:0_1px_10px_rgba(0,0,0,0.4)] sm:text-base">
             Tildes - платформа возрождения исчезающих языков Сибири и тюркского
             мира. Переводчик на собственной нейросети, живой голос и карточки для
             тех, кто хочет вернуть язык предков.
@@ -58,31 +71,18 @@ export default function Landing() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/chat"
-              className="pressable inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-base font-medium text-primary-foreground shadow-sm hover:bg-[var(--primary-hover)]"
+              className="pressable inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-base font-medium text-primary-foreground shadow-lg hover:bg-[var(--primary-hover)]"
             >
               Открыть переводчик
               <ArrowRight width={18} height={18} aria-hidden />
             </Link>
             <Link
               href="/learn"
-              className="pressable inline-flex items-center gap-2 rounded-xl bg-surface px-5 py-3 text-base font-medium text-foreground ring-1 ring-border hover:bg-surface-2"
+              className="pressable inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-base font-medium text-white ring-1 ring-white/40 backdrop-blur hover:bg-white/20"
             >
               Учить язык
             </Link>
           </div>
-        </div>
-        <div className="relative mt-8 min-h-0 flex-1 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero-mountain.jpg"
-            alt="Заснеженная вершина в золотом свете рассвета"
-            className="h-full w-full animate-zoom-slow object-cover"
-            loading="eager"
-          />
-          {/* Warm amber wash ties the cold sky to the project palette */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/35 via-primary/5 to-transparent" />
-          {/* Soft fade so the photo melts into the card, not pasted onto it */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-surface-2 via-surface-2/50 to-transparent" />
         </div>
       </section>
 
