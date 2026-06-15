@@ -15,7 +15,7 @@ export const HomeIcon = (p: P) => (
   <svg {...base} {...p}>
     {/* Yurt: roof with two straight slopes and a short flat ridge, flowing into walls and base as one outline; band line; arched door */}
     <path d="M4.2 20.3C3.9 17.5 4 14.5 4.3 11.8L8.6 7.2H15.4L19.7 11.8C20 14.5 20.1 17.5 19.8 20.3 15.2 21.5 8.8 21.5 4.2 20.3Z" />
-    <path d="M7.4 9.7C9.5 10.2 14.5 10.2 16.6 9.7" />
+    <path d="M7.4 10.7C9.5 11.2 14.5 11.2 16.6 10.7" />
     <path d="M9.8 20.7V16.4C9.8 15 12 15 12 15s2.2 0 2.2 1.4V20.7" />
   </svg>
 );
