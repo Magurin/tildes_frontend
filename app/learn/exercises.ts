@@ -66,6 +66,64 @@ export function shuffle<T>(arr: T[]): T[] {
 
 const norm = (s: string) => s.trim().toLowerCase();
 
+/** Normalize for cognate detection: drop stress marks, unify ё, strip edge
+ * punctuation — so «поэ́т.» and «поэт» compare equal. */
+function normCognate(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // combining accents (stress marks)
+    .replace(/ё/g, "е")
+    .replace(/^[«"'([]+|[.,;:!?»"')\]]+$/g, "")
+    .trim();
+}
+
+/** Bounded Levenshtein — returns the distance, capped at `max`+1. */
+function editDistance(a: string, b: string, max = 1): number {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0];
+    prev[0] = i;
+    let rowMin = prev[0];
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = prev[j];
+      prev[j] = Math.min(
+        prev[j] + 1,
+        prev[j - 1] + 1,
+        diag + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+      diag = tmp;
+      if (prev[j] < rowMin) rowMin = prev[j];
+    }
+    if (rowMin > max) return max + 1; // whole row already over budget
+  }
+  return prev[b.length];
+}
+
+/**
+ * A "cognate" here is a borrowed word whose term is identical (or all-but-
+ * identical) to its translation — e.g. ракета→ракета, поэт→поэт. They teach
+ * nothing about the target language, so the lesson filters them out. Multi-gloss
+ * translations match if the term echoes ANY gloss.
+ */
+export function isCognate(
+  term: string,
+  translation: string | null | undefined,
+): boolean {
+  if (!translation) return false;
+  const t = normCognate(term);
+  if (t.length < 2) return false;
+  for (const raw of translation.split(/[,;/]|\bили\b/)) {
+    const g = normCognate(raw);
+    if (!g) continue;
+    if (g === t) return true;
+    if (t.length >= 4 && g.length >= 4 && editDistance(t, g, 1) <= 1)
+      return true;
+  }
+  return false;
+}
+
 /** Words in a sentence (keeps it simple: split on whitespace). */
 function words(s: string): string[] {
   return s.trim().split(/\s+/).filter(Boolean);

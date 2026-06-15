@@ -7,7 +7,7 @@ import LanguagePicker from "../components/LanguagePicker";
 import { CheckIcon, XIcon, RepeatIcon, HeartIcon } from "../components/icons";
 import SpeakButton from "../components/SpeakButton";
 import type { DictionaryEntry } from "@/lib/types";
-import { buildLesson, type Exercise } from "./exercises";
+import { buildLesson, isCognate, shuffle, type Exercise } from "./exercises";
 import {
   load,
   save,
@@ -56,14 +56,17 @@ export default function LearnPage() {
 
   const entries = data && data.id === activeId ? data.entries : null;
 
-  // Studyable = a term plus something to recall it by.
+  // Studyable = a term plus something to recall it by. Borrowed cognates
+  // (ракета→ракета) teach nothing about the target language, so they're left
+  // out of the lesson — but kept in the dictionary, translator and export.
   const cards = useMemo(
     () =>
       (entries ?? []).filter(
         (e) =>
           e.term &&
           !e.term.startsWith("—") &&
-          (e.translation || e.image_url || e.audio_url || e.example),
+          (e.translation || e.image_url || e.audio_url || e.example) &&
+          !isCognate(e.term, e.translation),
       ),
     [entries],
   );
@@ -162,8 +165,10 @@ function LessonRound({
   const lesson = useMemo<Item[]>(() => {
     const byId = new Map(cards.map((c) => [c.id, c]));
     const today = dayIndex();
+    // Shuffle first so brand-new cards (all equal priority) don't appear in
+    // dictionary import order — which clusters loanwords alphabetically.
     const ordered = sortForStudy(
-      cards.map((c) => c.id),
+      shuffle(cards.map((c) => c.id)),
       prog.cards,
       today,
     )
