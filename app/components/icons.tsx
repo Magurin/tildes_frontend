@@ -13,17 +13,11 @@ const base = {
 
 export const HomeIcon = (p: P) => (
   <svg {...base} {...p}>
-    {/* Yurt: wide conical roof, crown (toono), barrel wall with bands, door */}
-    <path d="M3 12C4.5 8 9 6 12 6s7.5 2 9 6" />
-    <ellipse cx="12" cy="5" rx="2.3" ry="1.2" />
-    <path d="M12 3.9V6.1" />
-    <path d="M3.6 12C3.2 15 3.4 17.6 4.6 19" />
-    <path d="M20.4 12C20.8 15 20.6 17.6 19.4 19" />
-    <path d="M4.6 19C9 20.4 15 20.4 19.4 19" />
-    <path d="M3.5 14.4C8 15.3 16 15.3 20.5 14.4" />
-    <path d="M3.8 16.9C8 17.7 16 17.7 20.2 16.9" />
-    <path d="M9.5 19.1V13.6h5V19.1" />
-    <path d="M12 13.6V19.1" />
+    {/* Yurt: crown (toono) on top, flaring conical roof, cylindrical wall, arched door */}
+    <ellipse cx="12" cy="4" rx="2.2" ry="1.1" />
+    <path d="M2.6 12C4 7.6 8 5.1 12 5.1s8 2.5 9.4 6.9" />
+    <path d="M3.8 12.3C3.4 15.2 3.5 18.1 4.7 20.1c4.4 1.3 10.2 1.3 14.6 0 1.2-2 1.3-4.9.9-7.8" />
+    <path d="M9.6 20.8v-4.4C9.6 14.8 10.7 14.8 12 14.8s2.4 0 2.4 1.6v4.4" />
   </svg>
 );
 
