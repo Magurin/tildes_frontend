@@ -8,7 +8,7 @@
  * can support, falling back gracefully when there's no example sentence.
  */
 
-import type { DictionaryEntry } from "@/lib/types";
+import type { DictionaryEntry, SentencePair } from "@/lib/types";
 
 export type Exercise =
   // Show one side, pick the other from four options.
@@ -51,9 +51,34 @@ export type Exercise =
       answer: string; // the term
       letters: string[]; // shuffled letters
       hint: string; // the translation / definition
+    }
+  // Translate a Russian sentence by tapping target-language word tiles in order.
+  | {
+      kind: "translate-sentence";
+      pair: SentencePair;
+      prompt: string; // the Russian sentence
+      answer: string[]; // target tokens in correct order
+      tiles: string[]; // shuffled answer tokens (+ a couple distractors)
     };
 
 export type ExerciseKind = Exercise["kind"];
+
+/** Stable spaced-repetition key for any exercise (entry id or pair id). */
+export function srsKey(ex: Exercise): string {
+  return ex.kind === "translate-sentence" ? ex.pair.id : ex.entry.id;
+}
+
+/** Text to read aloud / show as the correct answer for an exercise. */
+export function answerText(ex: Exercise): string {
+  switch (ex.kind) {
+    case "assemble-sentence":
+      return ex.answer.join(" ");
+    case "translate-sentence":
+      return ex.answer.join(" ");
+    default:
+      return ex.answer;
+  }
+}
 
 export function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -273,7 +298,53 @@ function buildOne(
         hint: entry.translation || entry.definition || "",
       };
     }
+    default:
+      // Sentence exercises are built separately, never via buildOne.
+      return null;
   }
+}
+
+/** Tokenize a sentence into clean, lowercased, punctuation-free words. */
+function sentenceTokens(s: string): string[] {
+  return s
+    .toLowerCase()
+    .split(/\s+/)
+    .map((w) => w.replace(/[.,!?;:()«»"]/g, ""))
+    .filter(Boolean);
+}
+
+/**
+ * Turn sentence pairs into "translate the sentence" exercises. Each answer is
+ * the tokenized target; the word bank adds a couple of decoy words pulled from
+ * other sentences so the tiles aren't a trivial 1:1 set.
+ */
+export function buildSentenceExercises(
+  pairs: SentencePair[],
+  max: number,
+): Exercise[] {
+  // Flat pool of candidate decoy words from the whole batch.
+  const wordPool = Array.from(
+    new Set(pairs.flatMap((p) => sentenceTokens(p.target))),
+  );
+  const out: Exercise[] = [];
+  for (const pair of pairs) {
+    if (out.length >= max) break;
+    const answer = sentenceTokens(pair.target);
+    if (answer.length < 3 || answer.length > 9) continue;
+    const inAnswer = new Set(answer);
+    const decoys = shuffle(wordPool.filter((w) => !inAnswer.has(w))).slice(
+      0,
+      answer.length >= 6 ? 2 : 1,
+    );
+    out.push({
+      kind: "translate-sentence",
+      pair,
+      prompt: pair.source,
+      answer,
+      tiles: shuffle([...answer, ...decoys]),
+    });
+  }
+  return out;
 }
 
 /**

@@ -30,6 +30,14 @@ export type DictionaryEntry = {
   created_at: string;
 };
 
+export type SentencePair = {
+  id: string;
+  language_id: string;
+  source: string; // Russian prompt
+  target: string; // target-language answer
+  created_at: string;
+};
+
 export type DocumentRow = {
   id: string;
   language_id: string;

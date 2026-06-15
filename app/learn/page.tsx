@@ -6,8 +6,15 @@ import { useLanguages } from "../components/ActiveLanguageProvider";
 import LanguagePicker from "../components/LanguagePicker";
 import { CheckIcon, XIcon, RepeatIcon, HeartIcon } from "../components/icons";
 import SpeakButton from "../components/SpeakButton";
-import type { DictionaryEntry } from "@/lib/types";
-import { buildLesson, isCognate, shuffle, type Exercise } from "./exercises";
+import type { DictionaryEntry, SentencePair } from "@/lib/types";
+import {
+  buildLesson,
+  buildSentenceExercises,
+  isCognate,
+  shuffle,
+  srsKey,
+  type Exercise,
+} from "./exercises";
 import {
   load,
   save,
@@ -36,6 +43,7 @@ export default function LearnPage() {
   const [data, setData] = useState<{
     id: string;
     entries: DictionaryEntry[];
+    sentences: SentencePair[];
   } | null>(null);
 
   useEffect(() => {
@@ -44,17 +52,25 @@ export default function LearnPage() {
     fetch(`/api/languages/${activeId}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((json) => {
-        if (!cancelled) setData({ id: activeId, entries: json.entries ?? [] });
+        if (!cancelled)
+          setData({
+            id: activeId,
+            entries: json.entries ?? [],
+            sentences: json.sentences ?? [],
+          });
       })
       .catch(() => {
-        if (!cancelled) setData({ id: activeId, entries: [] });
+        if (!cancelled)
+          setData({ id: activeId, entries: [], sentences: [] });
       });
     return () => {
       cancelled = true;
     };
   }, [activeId]);
 
-  const entries = data && data.id === activeId ? data.entries : null;
+  const ready = data && data.id === activeId;
+  const entries = ready ? data.entries : null;
+  const sentences = ready ? data.sentences : [];
 
   // Studyable = a term plus something to recall it by. Borrowed cognates
   // (ракета→ракета) teach nothing about the target language, so they're left
@@ -102,14 +118,19 @@ export default function LearnPage() {
 
       {entries === null ? (
         <p className="text-muted">Загрузка словаря…</p>
-      ) : cards.length === 0 ? (
+      ) : cards.length === 0 && sentences.length === 0 ? (
         <div className="card p-6 text-center text-sm text-muted">
           Пока нечего учить: нужны словарные статьи с переводом, примером, рисунком
           или аудио. Запишите слова в «Боте» или импортируйте словарь CSV в
           «Загрузке».
         </div>
       ) : (
-        <Lesson key={activeId} cards={cards} isoCode={active.iso_code} />
+        <Lesson
+          key={activeId}
+          cards={cards}
+          sentences={sentences}
+          isoCode={active.iso_code}
+        />
       )}
     </div>
   );
@@ -118,12 +139,28 @@ export default function LearnPage() {
 const LESSON_SIZE = 12;
 const MAX_HEARTS = 5;
 
+/** Weave sentence exercises among word ones — one sentence per `wordsPer`
+ * words — so a lesson alternates vocabulary recall with real sentences. */
+function interleave<T>(words: T[], sentences: T[], wordsPer = 2): T[] {
+  const out: T[] = [];
+  let si = 0;
+  for (let i = 0; i < words.length; i++) {
+    out.push(words[i]);
+    if ((i + 1) % wordsPer === 0 && si < sentences.length)
+      out.push(sentences[si++]);
+  }
+  while (si < sentences.length) out.push(sentences[si++]);
+  return out;
+}
+
 /** Owns the round counter so "ещё урок" rebuilds with freshly-due cards. */
 function Lesson({
   cards,
+  sentences,
   isoCode,
 }: {
   cards: DictionaryEntry[];
+  sentences: SentencePair[];
   isoCode?: string | null;
 }) {
   const [round, setRound] = useState(0);
@@ -131,6 +168,7 @@ function Lesson({
     <LessonRound
       key={round}
       cards={cards}
+      sentences={sentences}
       isoCode={isoCode}
       onAgain={() => setRound((r) => r + 1)}
     />
@@ -141,10 +179,12 @@ type Item = { ex: Exercise; key: number };
 
 function LessonRound({
   cards,
+  sentences,
   isoCode,
   onAgain,
 }: {
   cards: DictionaryEntry[];
+  sentences: SentencePair[];
   isoCode?: string | null;
   onAgain: () => void;
 }) {
@@ -174,10 +214,24 @@ function LessonRound({
     )
       .map((id) => byId.get(id)!)
       .filter(Boolean);
-    return buildLesson(ordered, cards, LESSON_SIZE).map((ex, i) => ({
-      ex,
-      key: i,
-    }));
+    const wordEx = buildLesson(ordered, cards, LESSON_SIZE);
+
+    // Sentence translations are woven in (~1 of every 3 exercises), ordered by
+    // spaced repetition like the words. None for languages without a corpus.
+    const orderedPairs = sortForStudy(
+      shuffle(sentences.map((s) => s.id)),
+      prog.cards,
+      today,
+    )
+      .map((id) => sentences.find((s) => s.id === id)!)
+      .filter(Boolean);
+    const sentEx = buildSentenceExercises(
+      orderedPairs,
+      Math.ceil(LESSON_SIZE / 3),
+    );
+
+    const mixed = interleave(wordEx, sentEx).slice(0, LESSON_SIZE);
+    return mixed.map((ex, i) => ({ ex, key: i }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -190,7 +244,7 @@ function LessonRound({
     (correct: boolean) => {
       const item = queue[0];
       if (!item) return;
-      const entry = item.ex.entry;
+      const id = srsKey(item.ex);
       const today = dayIndex();
       const prev = progRef.current;
       const p: LearnProgress = { ...prev, cards: { ...prev.cards } };
@@ -206,8 +260,8 @@ function LessonRound({
         }
       }
 
-      const ns = nextState(prev.cards[entry.id], correct, today);
-      p.cards[entry.id] = ns;
+      const ns = nextState(prev.cards[id], correct, today);
+      p.cards[id] = ns;
 
       if (correct) {
         const gained = xpFor(ns.box, comboRef.current);
@@ -265,7 +319,7 @@ function LessonRound({
         bestCombo={prog.bestCombo}
         goalCount={prog.goalCount}
         mastered={masteredCount(prog.cards)}
-        deckSize={cards.length}
+        deckSize={cards.length + sentences.length}
         level={lvl.level}
         onAgain={onAgain}
       />
@@ -357,6 +411,10 @@ function ExerciseView({
       return <AssembleView ex={ex} isoCode={isoCode} onDone={onDone} />;
     case "scramble":
       return <ScrambleView ex={ex} isoCode={isoCode} onDone={onDone} />;
+    case "translate-sentence":
+      return (
+        <TranslateSentenceView ex={ex} isoCode={isoCode} onDone={onDone} />
+      );
   }
 }
 
@@ -654,6 +712,92 @@ function AssembleView({
         status={status}
         canCheck={built.length > 0}
         answerText={ex.answer.join(" ")}
+        isoCode={isoCode}
+        speakAnswer
+        onCheck={() => setStatus(correct ? "correct" : "wrong")}
+        onContinue={() => onDone(status === "correct")}
+      />
+    </div>
+  );
+}
+
+/* ── Translate a Russian sentence by tapping target-language word tiles ── */
+function TranslateSentenceView({
+  ex,
+  isoCode,
+  onDone,
+}: {
+  ex: Extract<Exercise, { kind: "translate-sentence" }>;
+  isoCode?: string | null;
+  onDone: (correct: boolean) => void;
+}) {
+  const initial = useMemo(
+    () => ex.tiles.map((t, i) => ({ t, i })),
+    [ex.tiles],
+  );
+  const [bank, setBank] = useState(initial);
+  const [built, setBuilt] = useState<{ t: string; i: number }[]>([]);
+  const [status, setStatus] = useState<Status>("idle");
+
+  const move = (tile: { t: string; i: number }, toBuilt: boolean) => {
+    if (status !== "idle") return;
+    if (toBuilt) {
+      setBank((b) => b.filter((x) => x.i !== tile.i));
+      setBuilt((b) => [...b, tile]);
+    } else {
+      setBuilt((b) => b.filter((x) => x.i !== tile.i));
+      setBank((b) => [...b, tile]);
+    }
+  };
+
+  const answer = ex.answer.join(" ");
+  const correct = built.map((x) => x.t).join(" ") === answer;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PromptCard>
+        <p className="text-sm text-muted">Переведите предложение</p>
+        <p className="text-xl leading-relaxed text-foreground">{ex.prompt}</p>
+      </PromptCard>
+
+      {/* Build area */}
+      <div className="card flex min-h-[4.5rem] flex-wrap content-start gap-2 p-4">
+        {built.length === 0 && (
+          <span className="text-sm text-muted">Нажимайте слова ниже…</span>
+        )}
+        {built.map((tile) => (
+          <button
+            key={tile.i}
+            disabled={status !== "idle"}
+            onClick={() => move(tile, false)}
+            className="pressable rounded-lg border border-primary bg-primary/10 px-3 py-1.5 text-base text-primary"
+          >
+            {tile.t}
+          </button>
+        ))}
+      </div>
+
+      {/* Word bank */}
+      <div className="flex flex-wrap justify-center gap-2 border-t border-border pt-4">
+        {bank.map((tile) => (
+          <button
+            key={tile.i}
+            disabled={status !== "idle"}
+            onClick={() => move(tile, true)}
+            className="pressable rounded-lg border border-border bg-surface px-3 py-1.5 text-base text-foreground hover:bg-surface-2"
+          >
+            {tile.t}
+          </button>
+        ))}
+        {bank.length === 0 && (
+          <span className="text-sm text-muted">— все слова использованы —</span>
+        )}
+      </div>
+
+      <CheckFooter
+        status={status}
+        canCheck={built.length > 0}
+        answerText={answer}
         isoCode={isoCode}
         speakAnswer
         onCheck={() => setStatus(correct ? "correct" : "wrong")}

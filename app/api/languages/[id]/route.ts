@@ -21,7 +21,7 @@ export async function GET(
   if (error || !language)
     return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const [entries, documents, responses] = await Promise.all([
+  const [entries, documents, responses, sentences] = await Promise.all([
     supabase
       .from("dictionary_entries")
       .select("*")
@@ -38,6 +38,12 @@ export async function GET(
       .from("quiz_responses")
       .select("id")
       .eq("language_id", id),
+    // Sentence pairs power the "translate the sentence" exercise in Learn.
+    supabase
+      .from("sentence_pairs")
+      .select("*")
+      .eq("language_id", id)
+      .range(0, 1499),
   ]);
 
   const responseCount = responses.data?.length ?? 0;
@@ -46,6 +52,7 @@ export async function GET(
   return NextResponse.json({
     language,
     entries: entries.data ?? [],
+    sentences: sentences.data ?? [],
     documents: documents.data ?? [],
     responseCount,
     threshold: DATASET_THRESHOLD,
