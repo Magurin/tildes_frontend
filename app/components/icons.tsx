@@ -147,3 +147,30 @@ export const RepeatIcon = (p: P) => (
     <path d="M21 13v2a3 3 0 0 1-3 3H3" />
   </svg>
 );
+
+export const SparklesIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+    <path d="M12 7c.6 2.8 2.2 4.4 5 5-2.8.6-4.4 2.2-5 5-.6-2.8-2.2-4.4-5-5 2.8-.6 4.4-2.2 5-5Z" />
+  </svg>
+);
+
+export const WaveIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M2 12h2M7 12h2M12 12h2M17 12h2M22 12h0" />
+    <path d="M4 8v8M9 5v14M14 7v10M19 9v6" />
+  </svg>
+);
+
+export const HeartIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 20s-7-4.3-9.3-8.6C1.2 8.6 2.6 5.5 5.7 5.1 7.8 4.8 9.4 6 12 8.5c2.6-2.5 4.2-3.7 6.3-3.4 3.1.4 4.5 3.5 3 6.3C19 15.7 12 20 12 20Z" />
+  </svg>
+);
+
+export const ArrowRight = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M5 12h14" />
+    <path d="m13 5 7 7-7 7" />
+  </svg>
+);
