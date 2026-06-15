@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useLanguages } from "../components/ActiveLanguageProvider";
 import LanguagePicker from "../components/LanguagePicker";
 import { AuthForm, useAuthSession } from "../components/ModeratorAuth";
-import { UploadIcon } from "../components/icons";
+import { UploadIcon, DownloadIcon } from "../components/icons";
 
 type Result = { ok: boolean; message: string };
 
@@ -74,7 +74,8 @@ export default function UploadPage() {
         </h1>
         <p className="mt-1 text-sm text-muted">
           PDF и TXT пополняют базу знаний (RAG). CSV/TSV со столбцами
-          «слово, перевод» импортируются сразу в словарь.
+          «слово, перевод» импортируются сразу в словарь. Готовый словарь можно
+          скачать в CSV или CLDF.
         </p>
       </header>
 
@@ -137,6 +138,47 @@ export default function UploadPage() {
             {result.message}
           </p>
         )}
+          </div>
+
+          <div className="card p-4">
+            <h2 className="text-sm font-semibold text-foreground">
+              Скачать словарь
+            </h2>
+            <p className="mt-1 text-xs text-muted">
+              Выгрузка собранного словаря
+              {active ? ` «${active.name}»` : ""}
+              {active?.entry_count ? ` · ${active.entry_count} слов` : ""}.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <a
+                href={
+                  activeId
+                    ? `/api/languages/${activeId}/export?format=csv`
+                    : undefined
+                }
+                download
+                aria-disabled={!activeId}
+                className={`pressable inline-flex items-center gap-2 rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-medium text-foreground ${
+                  activeId ? "" : "pointer-events-none opacity-50"
+                }`}
+              >
+                <DownloadIcon width={18} height={18} aria-hidden /> CSV
+              </a>
+              <a
+                href={
+                  activeId
+                    ? `/api/languages/${activeId}/export?format=cldf`
+                    : undefined
+                }
+                download
+                aria-disabled={!activeId}
+                className={`pressable inline-flex items-center gap-2 rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-medium text-foreground ${
+                  activeId ? "" : "pointer-events-none opacity-50"
+                }`}
+              >
+                <DownloadIcon width={18} height={18} aria-hidden /> CLDF (JSON)
+              </a>
+            </div>
           </div>
         </>
       )}

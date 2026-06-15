@@ -2,18 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HomeIcon, ChatIcon, BookIcon, MicIcon, UserIcon } from "./icons";
+import {
+  HomeIcon,
+  ChatIcon,
+  BookIcon,
+  MicIcon,
+  UploadIcon,
+  UserIcon,
+} from "./icons";
 import { useAuthSession } from "./ModeratorAuth";
 
 const tabs = [
   { href: "/", label: "Главная", Icon: HomeIcon, exact: true },
   { href: "/chat", label: "Перевод", Icon: ChatIcon },
-  // «Запись» — сбор данных от носителей, виден только модераторам.
+  // «Запись» и «Загрузка» — работа с данными, видны только модераторам.
   { href: "/capture", label: "Запись", Icon: MicIcon, moderator: true },
+  { href: "/upload", label: "Загрузка", Icon: UploadIcon, moderator: true },
   { href: "/learn", label: "Учить", Icon: BookIcon },
   { href: "/account", label: "Профиль", Icon: UserIcon },
 ];
 
+/** Vertical navigation rail pinned to the left edge. */
 export default function BottomNav() {
   const pathname = usePathname();
   const { isModerator } = useAuthSession();
@@ -21,21 +30,20 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-surface/95 backdrop-blur"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="fixed inset-y-0 left-0 z-40 w-20 border-r border-border bg-surface/95 backdrop-blur"
       aria-label="Основная навигация"
     >
-      <ul className="mx-auto flex max-w-lg items-stretch justify-around">
+      <ul className="flex h-full flex-col items-stretch gap-1 px-1 py-3">
         {visible.map(({ href, label, Icon, exact }) => {
           const active = exact
             ? pathname === href
             : pathname === href || pathname.startsWith(href + "/");
           return (
-            <li key={href} className="flex-1">
+            <li key={href}>
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`group pressable mx-1 my-1 flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-medium transition-colors duration-200 hover:bg-surface-2 hover:text-primary ${
+                className={`group pressable flex flex-col items-center justify-center gap-1 rounded-2xl px-1 py-3 text-[10px] font-medium leading-tight transition-colors duration-200 hover:bg-surface-2 hover:text-primary ${
                   active ? "text-primary" : "text-muted"
                 }`}
               >
@@ -46,7 +54,7 @@ export default function BottomNav() {
                   aria-hidden
                   className="transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-110 group-active:translate-y-0 group-active:scale-100"
                 />
-                <span className="transition-colors duration-200">{label}</span>
+                <span className="text-center">{label}</span>
               </Link>
             </li>
           );
