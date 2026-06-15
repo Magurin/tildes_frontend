@@ -14,7 +14,7 @@ export default function CapturePage() {
   if (loading || authLoading)
     return <p className="pt-6 text-muted">Загрузка…</p>;
 
-  // Capture writes to the dataset — moderators only.
+  // Capture writes to the dataset - moderators only.
   if (!isModerator)
     return (
       <div className="flex flex-col gap-5 pt-2">
@@ -33,7 +33,7 @@ export default function CapturePage() {
           <AuthForm note="Войдите как модератор, чтобы записывать слова." />
         ) : (
           <div className="card p-5 text-sm text-muted">
-            У вашего аккаунта нет прав модератора. Их выдаёт администратор —{" "}
+            У вашего аккаунта нет прав модератора. Их выдаёт администратор -{" "}
             <Link href="/account" className="text-primary underline">
               профиль
             </Link>
@@ -75,7 +75,7 @@ export default function CapturePage() {
           Запись слов
         </h1>
         <p className="mt-1 text-sm text-muted">
-          Нарисуйте слово и произнесите его голосом — так растёт датасет языка.
+          Нарисуйте слово и произнесите его голосом - так растёт датасет языка.
         </p>
       </header>
 

@@ -55,7 +55,7 @@ export default function Translator({
   }, []);
 
   function saveToHistory(item: HistoryItem) {
-    // Typing produces a chain of prefix queries («при», «привет») — keep
+    // Typing produces a chain of prefix queries («при», «привет») - keep
     // only the longest; also collapse exact repeats.
     const rest = loadHistory().filter(
       (h) =>
@@ -95,7 +95,7 @@ export default function Translator({
   }
 
   // Voice input (ru2t): record Russian speech, transcribe via Deepgram,
-  // drop the text into the source box — auto-translate picks it up.
+  // drop the text into the source box - auto-translate picks it up.
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -123,7 +123,7 @@ export default function Translator({
           const res = await fetch("/api/transcribe", { method: "POST", body: fd });
           const json = await res.json();
           if (json.transcript) setText(json.transcript);
-          else setError("Не удалось распознать речь — попробуйте ещё раз");
+          else setError("Не удалось распознать речь - попробуйте ещё раз");
         } catch {
           setError("Сетевая ошибка при распознавании");
         } finally {

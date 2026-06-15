@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Tildes AI — спасаем умирающие языки",
+    name: "Tildes AI - спасаем умирающие языки",
     short_name: "Tildes AI",
     description:
       "Платформа сохранения исчезающих языков через общение с носителем.",

@@ -130,7 +130,7 @@ export default function LanguageDetailPage({
         </div>
         <p className="mt-2 text-sm text-muted">
           {chatReady
-            ? "Достаточно данных — режим чата доступен."
+            ? "Достаточно данных - режим чата доступен."
             : "Пройдите викторину, чтобы открыть режим чата."}
         </p>
         <Link

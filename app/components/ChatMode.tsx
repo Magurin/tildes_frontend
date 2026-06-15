@@ -53,7 +53,7 @@ export default function ChatMode({
     <div className="flex flex-col gap-3">
       {!ready && (
         <div className="rounded-xl bg-surface-2 px-4 py-3 text-sm text-muted">
-          Датасет ещё мал — ответы будут точнее после записи слов. Чат доступен в
+          Датасет ещё мал - ответы будут точнее после записи слов. Чат доступен в
           режиме предпросмотра.
         </div>
       )}

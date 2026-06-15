@@ -13,80 +13,6 @@ import {
   RepeatIcon,
 } from "./icons";
 
-/* Royalty-free by construction: a hand-built flat scene of Altai/Siberian
-   mountains, a river and a rising sun — themed to the project palette. */
-function HeroScene() {
-  return (
-    <svg
-      viewBox="0 0 480 300"
-      className="h-auto w-full"
-      role="img"
-      aria-label="Горы, река и восходящее солнце"
-    >
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fbe6c8" />
-          <stop offset="100%" stopColor="#faf6ee" />
-        </linearGradient>
-        <linearGradient id="river" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#5eead4" />
-          <stop offset="100%" stopColor="#0f766e" />
-        </linearGradient>
-      </defs>
-
-      <rect width="480" height="300" fill="url(#sky)" />
-
-      {/* Sun */}
-      <circle cx="240" cy="104" r="42" fill="#f59e0b" opacity="0.9" />
-      <g stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" opacity="0.55">
-        <path d="M240 36v-20M240 192v16M328 104h20M152 104h-20M302 42l12-12M178 166l-12 12M302 166l12 12M178 42l-12-12" />
-      </g>
-
-      {/* Far ridge */}
-      <path
-        d="M0 200 L70 150 L130 188 L200 132 L270 184 L340 138 L410 186 L480 150 L480 300 L0 300 Z"
-        fill="#d9a066"
-        opacity="0.5"
-      />
-      {/* Mid ridge */}
-      <path
-        d="M0 230 L80 176 L150 214 L230 160 L300 210 L380 168 L480 214 L480 300 L0 300 Z"
-        fill="#b45309"
-        opacity="0.65"
-      />
-      {/* Snow caps */}
-      <path d="M230 160 L210 188 L250 188 Z" fill="#fff" opacity="0.85" />
-      <path d="M80 176 L62 200 L98 200 Z" fill="#fff" opacity="0.8" />
-
-      {/* River */}
-      <path
-        d="M214 300 C232 250 200 232 236 210 C268 192 244 176 262 158 L300 300 Z"
-        fill="url(#river)"
-        opacity="0.9"
-      />
-
-      {/* Near hills */}
-      <path
-        d="M0 262 C120 226 180 280 260 256 C340 232 420 268 480 250 L480 300 L0 300 Z"
-        fill="#0f766e"
-        opacity="0.85"
-      />
-
-      {/* Birds */}
-      <g
-        stroke="#292524"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.5"
-      >
-        <path d="M360 70 q8 -8 16 0 q8 -8 16 0" />
-        <path d="M390 92 q6 -6 12 0 q6 -6 12 0" />
-      </g>
-    </svg>
-  );
-}
-
 const STAT_FALLBACK = { langs: 8, words: 41855 };
 
 function fmt(n: number) {
@@ -125,7 +51,7 @@ export default function Landing() {
             Сохраняем языки, пока звучит хотя бы один голос
           </h1>
           <p className="mt-4 max-w-xl text-[15px] leading-7 text-muted sm:text-base">
-            Tildes — платформа возрождения исчезающих языков Сибири и тюркского
+            Tildes - платформа возрождения исчезающих языков Сибири и тюркского
             мира. Переводчик на собственной нейросети, живой голос и карточки для
             тех, кто хочет вернуть язык предков.
           </p>
@@ -145,8 +71,18 @@ export default function Landing() {
             </Link>
           </div>
         </div>
-        <div className="mt-8 animate-float-slow">
-          <HeroScene />
+        <div className="relative mt-8 aspect-[16/10] overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/hero-mountain.jpg"
+            alt="Заснеженная вершина в золотом свете рассвета"
+            className="h-full w-full animate-zoom-slow object-cover"
+            loading="eager"
+          />
+          {/* Warm amber wash ties the cold sky to the project palette */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary/35 via-primary/5 to-transparent" />
+          {/* Soft fade so the photo melts into the card, not pasted onto it */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-surface-2 via-surface-2/50 to-transparent" />
         </div>
       </section>
 
@@ -165,7 +101,7 @@ export default function Landing() {
           в мире умирает язык
         </p>
         <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-[#c8bfae]">
-          Из почти 7000 языков мира под угрозой исчезновения — около половины. С
+          Из почти 7000 языков мира под угрозой исчезновения - около половины. С
           последним носителем уходит не словарь, а целый способ видеть мир: имена
           трав, счёт оленей, песни, которым тысячи лет.
         </p>
@@ -198,7 +134,7 @@ export default function Landing() {
             Их не переведёт ни один большой сервис
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-[15px] leading-7 text-muted">
-            Google и Яндекс знают сотни языков — но не эти. Мы начали с тех, кому
+            Google и Яндекс знают сотни языков - но не эти. Мы начали с тех, кому
             больше некуда идти, и собрали для них первый цифровой словарь.
           </p>
         </header>
@@ -277,13 +213,13 @@ export default function Landing() {
               href: "/chat",
               Icon: MicIcon,
               title: "Голос-в-голос",
-              desc: "Наговорите фразу по-русски — и услышьте, как она звучит на языке, которого нет ни в одном переводчике.",
+              desc: "Наговорите фразу по-русски - и услышьте, как она звучит на языке, которого нет ни в одном переводчике.",
             },
             {
               href: "/learn",
               Icon: BookIcon,
               title: "Учить язык",
-              desc: "Карточки из живого словаря с произношением — осваивайте язык предков слово за словом.",
+              desc: "Карточки из живого словаря с произношением - осваивайте язык предков слово за словом.",
             },
             {
               href: "/account",
@@ -339,9 +275,9 @@ export default function Landing() {
         <ol className="mt-8 grid gap-6 sm:grid-cols-4">
           {[
             ["Носитель", "записывает слово голосом и рисунком"],
-            ["Словарь", "растёт — каждое слово сохраняется навсегда"],
-            ["Нейросеть", "учится переводить и говорить на языке"],
-            ["Ученики", "осваивают язык — и круг замыкается"],
+            ["Словарь", "растёт - каждое слово сохраняется навсегда"],
+            ["Нейросеть", "которую мы учим говорить на языке, на основе полученных данных"],
+            ["Ученики", "осваивают язык - и круг замыкается"],
           ].map(([t, d], i) => (
             <li key={t} className="relative">
               <span
@@ -372,10 +308,10 @@ export default function Landing() {
           className="mx-auto mt-4 max-w-lg text-3xl leading-tight text-primary-foreground sm:text-4xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Каждое слово — голос, который продолжит звучать
+          Каждое слово - голос, который продолжит звучать
         </h2>
         <p className="mx-auto mt-3 max-w-md text-[15px] leading-7 text-primary-foreground/85">
-          Начните с перевода или первой карточки. Язык жив, пока на нём говорят —
+          Начните с перевода или первой карточки. Язык жив, пока на нём говорят -
           и пока кто-то учится.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">

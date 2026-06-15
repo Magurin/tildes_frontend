@@ -18,7 +18,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Tildes AI — спасаем умирающие языки",
+  title: "Tildes AI - спасаем умирающие языки",
   description:
     "Платформа сохранения исчезающих языков: викторина с носителем, загрузка словарей и учебников, словари каждого языка.",
   applicationName: "Tildes AI",
