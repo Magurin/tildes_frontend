@@ -96,10 +96,10 @@ export default function Landing() {
         style={{ animationDelay: "80ms" }}
       >
         <p
-          className="text-5xl text-[#f4ecdd] sm:text-6xl"
+          className="text-4xl text-[#f4ecdd] sm:text-6xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Каждые&nbsp;2&nbsp;недели
+          Каждые 2&nbsp;недели
         </p>
         <p className="mt-2 text-lg font-medium text-[#d9a066]">
           в мире умирает язык

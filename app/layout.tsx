@@ -47,7 +47,7 @@ export default function RootLayout({
       lang="ru"
       className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-dvh bg-background md:pl-20">
+      <body className="min-h-dvh overflow-x-hidden bg-background md:pl-20">
         <ActiveLanguageProvider>
           <main className="mx-auto max-w-[69.12rem] px-4 pb-24 pt-16 md:pb-12 md:pt-4">
             {children}
