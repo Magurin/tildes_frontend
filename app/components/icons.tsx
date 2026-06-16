@@ -141,6 +141,14 @@ export const XIcon = (p: P) => (
   </svg>
 );
 
+export const MenuIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 6h16" />
+    <path d="M4 12h16" />
+    <path d="M4 18h16" />
+  </svg>
+);
+
 export const SwapIcon = (p: P) => (
   <svg {...base} {...p}>
     <path d="M4 8h15" />
